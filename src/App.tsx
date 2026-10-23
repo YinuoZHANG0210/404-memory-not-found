@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { DragEvent, KeyboardEvent } from 'react'
+import type { CSSProperties, DragEvent, KeyboardEvent, PointerEvent } from 'react'
 import {
   initialGameState,
   finalizeChoice,
@@ -163,7 +163,11 @@ export default function App() {
   const [hintOpen, setHintOpen] = useState(false)
   const [selectedTile, setSelectedTile] = useState<number | null>(null)
   const [dragTile, setDragTile] = useState<number | null>(null)
+  const [dropTarget, setDropTarget] = useState<number | null>(null)
   const [pathSelected, setPathSelected] = useState<number | null>(null)
+  const [versionPulse, setVersionPulse] = useState(false)
+  const [sideOffset, setSideOffset] = useState({ x: 0, y: 0 })
+  const [sideDrag, setSideDrag] = useState<{ pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null)
   const [message, setMessage] = useState('')
   const [glitch, setGlitch] = useState(false)
   const [showIndex, setShowIndex] = useState(false)
@@ -205,6 +209,7 @@ export default function App() {
     setHintLevel(0)
     setHintOpen(false)
     setSelectedTile(null)
+    setDropTarget(null)
     setPathSelected(null)
     setMessage('')
     setEndPreview(null)
@@ -235,7 +240,10 @@ export default function App() {
   }
 
   function selectPhoto(index: number) {
-    if (selectedTile === null) setSelectedTile(index)
+    if (selectedTile === null) {
+      setSelectedTile(index)
+      setMessage('Fragment marked. Choose a second fragment to exchange it.')
+    }
     else swapPhoto(selectedTile, index)
   }
 
@@ -244,6 +252,31 @@ export default function App() {
     const source = dragTile ?? Number(event.dataTransfer.getData('text/plain'))
     if (Number.isInteger(source) && source >= 0 && source < 6) swapPhoto(source, target)
     setDragTile(null)
+    setDropTarget(null)
+  }
+
+  function changeVersion(index: number) {
+    updateGame((previous) => ({ ...previous, version: index }))
+    setVersionPulse(true)
+    window.setTimeout(() => setVersionPulse(false), 360)
+    if (sound) playTone('click')
+  }
+
+  function startSideDrag(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || window.innerWidth <= 850) return
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setSideDrag({ pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, originX: sideOffset.x, originY: sideOffset.y })
+  }
+
+  function moveSideDrag(event: PointerEvent<HTMLDivElement>) {
+    if (!sideDrag || event.pointerId !== sideDrag.pointerId) return
+    const x = Math.max(-210, Math.min(110, sideDrag.originX + event.clientX - sideDrag.startX))
+    const y = Math.max(-130, Math.min(190, sideDrag.originY + event.clientY - sideDrag.startY))
+    setSideOffset({ x, y })
+  }
+
+  function endSideDrag(event: PointerEvent<HTMLDivElement>) {
+    if (sideDrag?.pointerId === event.pointerId) setSideDrag(null)
   }
 
   function updateClue(id: number) {
@@ -336,13 +369,15 @@ export default function App() {
           {game.photoTiles.map((tile, position) => (
             <button
               key={position}
-              className={`photo-tile ${selectedTile === position ? 'selected' : ''} ${game.photoSolved ? 'tile-restored' : ''}`}
+              className={`photo-tile ${selectedTile === position ? 'selected' : ''} ${dropTarget === position ? 'drop-target' : ''} ${game.photoSolved ? 'tile-restored' : ''}`}
               style={{ backgroundPosition: `${(tile % 3) * 50}% ${Math.floor(tile / 3) * 100}%` }}
               draggable={!game.photoSolved}
               aria-label={`Photo fragment in slot ${position + 1}, showing section ${tile + 1}`}
               onDragStart={(event) => { setDragTile(position); event.dataTransfer.setData('text/plain', String(position)); event.dataTransfer.effectAllowed = 'move' }}
+              onDragEnter={() => setDropTarget(position)}
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => onPhotoDrop(event, position)}
+              onDragEnd={() => { setDragTile(null); setDropTarget(null) }}
               onClick={() => selectPhoto(position)}
               onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectPhoto(position) } }}
             />
@@ -427,12 +462,12 @@ export default function App() {
         <p className="instruction">One afternoon, three versions. Select a file to compare what changed.</p>
         <div className="version-switcher" role="tablist" aria-label="Archive versions">
           {versionData.map((version, index) => (
-            <button className={`version-tab ${game.version === index ? 'active' : ''}`} role="tab" aria-selected={game.version === index} key={version.label} onClick={() => updateGame((previous) => ({ ...previous, version: index }))}>
+            <button className={`version-tab ${game.version === index ? 'active' : ''}`} role="tab" aria-selected={game.version === index} key={version.label} onClick={() => changeVersion(index)}>
               <span className="tab-index">0{index + 1}</span>{version.label}
             </button>
           ))}
         </div>
-        <div className={`version-document version-${game.version}`} role="tabpanel">
+        <div className={`version-document version-${game.version} ${versionPulse ? 'version-pulse' : ''}`} role="tabpanel" aria-live="polite">
           <div className="document-top"><span>mira / notes-from-the-room.txt</span><span>{versionData[game.version].stamp}</span></div>
           <div className="document-body">
             <span className="document-mark">¶</span>
@@ -552,8 +587,8 @@ export default function App() {
         </div>
         <div className="browser-statusbar"><span>◉ {game.chapter === 'intro' ? 'ready — waiting for a response' : game.chapter === 'ending' ? 'write complete — local archive only' : 'reading from damaged local cache'}</span><span>100% <i>▰▰▰▰▰▰▰▱</i></span></div>
       </div>
-      <div className="side-window window">
-        <div className="side-titlebar"><span>▤ {t.progress}</span><span>— □ ×</span></div>
+      <div className={`side-window window ${sideDrag ? 'dragging' : ''}`} style={{ '--drag-x': `${sideOffset.x}px`, '--drag-y': `${sideOffset.y}px` } as CSSProperties}>
+        <div className="side-titlebar" onPointerDown={startSideDrag} onPointerMove={moveSideDrag} onPointerUp={endSideDrag} onPointerCancel={endSideDrag} title="Drag archive window"><span>▤ {t.progress}</span><span>— □ ×</span></div>
         <div className="side-body">
           {t.chapterNames.map((name, index) => {
             const complete = index === 0 ? game.chapter !== 'intro' : index === 1 ? game.photoSolved : index === 2 ? game.pathSolved : index === 3 ? game.evidenceSolved : game.ending !== null
