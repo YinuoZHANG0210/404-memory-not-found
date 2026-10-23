@@ -31,7 +31,8 @@ const copy = {
     restartRun: 'RESTART FROM 404', explore: 'EXPLORE ANOTHER ENDING', previous: 'RETURN TO THE CHOICE',
     language: '中文', toggleSound: 'SOUND OFF', toggleSoundOn: 'SOUND ON', solvedPath: 'PATH VERIFIED — PRIVATE REQUEST FOUND',
     chooseFragments: 'Select the fragments in the order they appear in the address.', notYet: 'The archive still finds contradictions.',
-    progress: 'ARCHIVE FILES', introHint: 'Something on this broken page is still responding.', footer: 'a personal site by Mira · last indexed 2089',
+    progress: 'RECOVERY PATH', introHint: 'Something on this broken page is still responding.', footer: 'a personal site by Mira · last indexed 2089',
+    startRecovery: 'START RECOVERY',
   },
   zh: {
     chapterNames: ['页面未找到', '破碎的照片', '隐藏留言', '历史版本', '最终决定'],
@@ -49,7 +50,8 @@ const copy = {
     restartRun: '从 404 重新开始', explore: '探索其他结局', previous: '返回选择页面',
     language: 'EN', toggleSound: '声音关闭', toggleSoundOn: '声音开启', solvedPath: '路径已验证 — 找到私人删除请求',
     chooseFragments: '按网址中的顺序选择片段。', notYet: '档案中仍有无法解释的矛盾。',
-    progress: '档案文件', introHint: '这个损坏页面上，还有什么仍在响应。', footer: 'Mira 的个人网站 · 最后索引于 2089 年',
+    progress: '恢复路径', introHint: '这个损坏页面上，还有什么仍在响应。', footer: 'Mira 的个人网站 · 最后索引于 2089 年',
+    startRecovery: '开始恢复',
   },
 } as const
 
@@ -180,6 +182,23 @@ export default function App() {
   }, [game])
 
   const currentEnding = endPreview ?? game.ending
+  const taskGuide = language === 'en'
+    ? {
+        intro: ['STEP 1 OF 5', 'Start the recovery', 'Open the damaged photo to begin rebuilding this archive.'],
+        photo: ['STEP 2 OF 5', 'Repair the photograph', 'Click any two tiles to swap them. Continue until the image aligns.'],
+        messages: ['STEP 3 OF 5', 'Recover three messages', 'Click each corrupted line. Then put the URL fragments in order.'],
+        versions: ['STEP 4 OF 5', 'Separate record from invention', 'Read all three versions, label both claims, then check your evidence.'],
+        decision: ['STEP 5 OF 5', 'Choose what remains', 'Select the archive outcome you think is responsible.'],
+        ending: ['RECOVERY COMPLETE', 'Your archive has been written', 'You can restart or return to compare a different outcome.'],
+      }[game.chapter]
+    : {
+        intro: ['第 1 / 5 步', '开始恢复', '打开损坏照片，开始重建这份档案。'],
+        photo: ['第 2 / 5 步', '修复照片', '依次点击任意两块碎片来交换它们，直到图像对齐。'],
+        messages: ['第 3 / 5 步', '恢复三条留言', '点击每一条损坏留言；再按顺序排列网址碎片。'],
+        versions: ['第 4 / 5 步', '区分记录和虚构', '阅读三个版本，给两条说法分类，再核对证据。'],
+        decision: ['第 5 / 5 步', '决定留下什么', '选择你认为负责任的档案处理方式。'],
+        ending: ['恢复完成', '你的档案已经写入', '可以重新开始，或返回比较另一种结局。'],
+      }[game.chapter]
   const discoveredFiles = useMemo(() => [
     { id: 'photo', label: '07 / camera-roll', unlocked: game.photoSolved },
     { id: 'messages', label: '12 / guestbook', unlocked: game.pathSolved },
@@ -332,25 +351,20 @@ export default function App() {
           <div>
             <p className="eyebrow">HTTP STATUS: 404 · CACHE DATE: 2089/04/31</p>
             <h1>404<br /><span>MEMORY NOT FOUND</span></h1>
-            <p className="intro-lede">The page you are looking for no longer exists.</p>
-            <p className="muted-copy">The address may have changed, or the memory may have been removed.</p>
-            <div className="dead-links">
-              <a href="#missing" onClick={(event) => { event.preventDefault(); setMessage('This address was never indexed.') }}>guestbook.html</a>
-              <a href="#missing" onClick={(event) => { event.preventDefault(); setMessage('The server returned an empty directory.') }}>pictures/</a>
-              <a href="#missing" onClick={(event) => { event.preventDefault(); setMessage('Last response: 00:00:00 — tomorrow.') }}>about_me.htm</a>
-            </div>
+            <p className="intro-lede">A personal site has been removed. One damaged photograph is still recoverable.</p>
+            <p className="muted-copy">Your task is simple: rebuild the photo, read what it reveals, then decide whether the archive should keep recovering private memories.</p>
+            <button className="primary-button intro-start" onClick={() => transition('photo')}>{t.startRecovery} <span>→</span></button>
+            <p className="dead-note">Other links: <s>guestbook.html</s> · <s>pictures/</s> · <s>about_me.htm</s></p>
           </div>
-          <div className="missing-photo" aria-label="Broken image, hover or open the archive recovery link">
+          <div className="missing-photo" aria-label="Broken image; use the Start Recovery button to open its fragments">
             <div className="missing-img-symbol"><span>▧</span> image_06.jpg<br /><small>ERR_FILE_NOT_FOUND</small></div>
             <p className="photo-caption">[the image could not be loaded]</p>
-            <a className="recovery-link" href="#archive-recovery" onClick={(event) => { event.preventDefault(); transition('photo') }}>
-              <span aria-hidden="true">↳</span> archive-recovery <span className="link-note">[responding]</span>
-            </a>
+            <span className="recovery-link"><span aria-hidden="true">↳</span> photo fragments available <span className="link-note">[use start recovery]</span></span>
           </div>
         </div>
         <div className="not-found-bottom">
           <span className="corrupt-line">⟦ cache: 00:00:00 / 32.14.89 ⟧ <span className="scramble">reco▒ery̷_̵po̵i̷n̵t</span></span>
-          <span>{t.introHint}</span>
+          <span>One recoverable file found.</span>
         </div>
         <p className="micro-footer">© 2007 Mira / mirrored by a system that does not know when to let go</p>
       </div>
@@ -364,7 +378,7 @@ export default function App() {
           <div><p className="eyebrow">DIRECTORY / IMAGES / 07</p><h1>{t.photoTitle}</h1></div>
           <span className="file-stamp">JPEG · PARTIAL RECOVERY</span>
         </div>
-        <p className="instruction">{t.photoInstruction}</p>
+        <p className="instruction"><b>HOW TO PLAY:</b> Click one tile, then click a second tile to swap them. Keep swapping until the photo lines up.</p>
         <div className={`puzzle-photo ${game.photoSolved ? 'puzzle-solved' : ''}`} aria-label="Six draggable pieces of a photograph">
           {game.photoTiles.map((tile, position) => (
             <button
@@ -385,8 +399,8 @@ export default function App() {
           {game.photoSolved && <div className="portrait-label"><span>MIRA</span><small>18 JUN 2007 · 16:42</small></div>}
         </div>
         <div className="puzzle-meta"><span>{game.photoSolved ? t.photoSolved : `${t.moves}: ${game.restorationAttempts}`}</span><span>IMG_0618.JPG</span></div>
-        <p className={`status-line ${message.includes('Mira') ? 'success-text' : ''}`} aria-live="polite">{message || (game.photoSolved ? '“That was the last day before the site went quiet.”' : 'A contact sheet, scattered by a damaged index.')}</p>
-        {game.photoSolved && <button className="text-button" onClick={() => transition('messages')}>OPEN GUESTBOOK ↗</button>}
+        <p className={`status-line ${message.includes('Mira') ? 'success-text' : ''}`} aria-live="polite">{message || (game.photoSolved ? 'Photo restored. A guestbook entry is now available.' : 'Select any two pieces to make your first swap.')}</p>
+        {game.photoSolved && <button className="primary-button" onClick={() => transition('messages')}>CONTINUE TO GUESTBOOK <span>→</span></button>}
       </div>
     )
   }
@@ -419,7 +433,7 @@ export default function App() {
                 aria-label={game.openedClues.includes(clue.id) ? clue.hidden : `Reveal corrupted message ${clue.id + 1}`}
               >
                 <span>{clue.lead}</span>
-                <span>{game.openedClues.includes(clue.id) ? clue.hidden : '▒▒▓░░▒▓▒░░▒▓▒░░ [hover / open]'}</span>
+                <span>{game.openedClues.includes(clue.id) ? clue.hidden : '▒▒▓░░▒▓▒░░▒▓▒░░ [click to reveal]'}</span>
               </button>
             ))}
           </div>
@@ -429,7 +443,7 @@ export default function App() {
         </div>
         <div className={`path-puzzle ${messagesRevealed ? '' : 'path-locked'}`}>
           <div className="path-top"><div><p className="eyebrow">BROKEN LINK / 03 PARTS</p><h2>{t.pathTitle}</h2></div><span className="tiny-lock">🔒 PRIVATE</span></div>
-          <p className="instruction">{messagesRevealed ? <>{t.chooseFragments} <code>ROOT → PERSON → REQUEST</code></> : 'Recover the three message-board fragments before this private address can be handled.'}</p>
+          <p className="instruction">{messagesRevealed ? <><b>NOW:</b> {t.chooseFragments} <code>ROOT → PERSON → REQUEST</code></> : 'FIRST: click all three corrupted messages above to reveal the private address clue.'}</p>
           <div className="path-parts" aria-label="Reorder the three path fragments">
             {game.pathOrder.map((part, position) => (
               <button
@@ -447,7 +461,7 @@ export default function App() {
           </div>
           <div className="path-bottom"><span className="path-preview">/archive{game.pathSolved ? pathParts.join('') : '/▒▒▒/▒▒▒'}</span><button className="old-button" disabled={!game.pathSolved} onClick={() => transition('versions')}>{t.openFile} ↗</button></div>
         </div>
-        <p className="status-line" aria-live="polite">{message || (game.openedClues.length > 0 ? `${game.openedClues.length} / 3 fragments of the board readable.` : 'The board is mostly empty. Something is under the noise.')}</p>
+        <p className="status-line" aria-live="polite">{message || (game.openedClues.length > 0 ? `${game.openedClues.length} / 3 messages recovered. ${messagesRevealed ? 'Arrange the address below.' : 'Click the remaining corrupted lines.'}` : 'Click the three corrupted lines to read them.')}</p>
       </div>
     )
   }
@@ -459,7 +473,7 @@ export default function App() {
           <div><p className="eyebrow">ARCHIVE / VERSION HISTORY / 14</p><h1>{t.versionTitle}</h1></div>
           <span className="file-stamp">COMPARE MODE</span>
         </div>
-        <p className="instruction">One afternoon, three versions. Select a file to compare what changed.</p>
+        <p className="instruction"><b>FIRST:</b> open all three files to compare them. <b>THEN:</b> classify each claim below as a record or an inference.</p>
         <div className="version-switcher" role="tablist" aria-label="Archive versions">
           {versionData.map((version, index) => (
             <button className={`version-tab ${game.version === index ? 'active' : ''}`} role="tab" aria-selected={game.version === index} key={version.label} onClick={() => changeVersion(index)}>
@@ -480,10 +494,10 @@ export default function App() {
           <p className="eyebrow">TWO CLAIMS / ONE SOURCE FILE</p><h2>{t.evidenceTitle}</h2>
           <EvidenceClaim id="request" text="Mira asked for private entries and location guesses to be removed." value={game.evidenceAnswers.request} onChoose={(value) => updateGame((previous) => ({ ...previous, evidenceAnswers: { ...previous.evidenceAnswers, request: value } }))} />
           <EvidenceClaim id="location" text="Mira spent the summer in Lisbon, in the blue room by the river." value={game.evidenceAnswers.location} onChoose={(value) => updateGame((previous) => ({ ...previous, evidenceAnswers: { ...previous.evidenceAnswers, location: value } }))} />
-          <div className="evidence-actions"><span className="clue-note">Clue: the signed request has a date; the Lisbon reconstruction has no source.</span><button className="old-button" onClick={submitEvidence} disabled={game.evidenceSolved}>{game.evidenceSolved ? 'EVIDENCE VERIFIED ✓' : t.check}</button></div>
+          <div className="evidence-actions"><span className="clue-note">Clue: the signed request has a date; the Lisbon reconstruction has no source.</span><button className="primary-button compact" onClick={submitEvidence} disabled={game.evidenceSolved}>{game.evidenceSolved ? 'EVIDENCE VERIFIED ✓' : t.check}</button></div>
         </div>
         <p className={`status-line ${game.evidenceSolved ? 'success-text' : ''}`} aria-live="polite">{message || (game.evidenceSolved ? 'Deletion request: verified. Lisbon: unsupported.' : 'The system once treated every deletion as a broken file.')}</p>
-        {game.evidenceSolved && <button className="text-button" onClick={() => transition('decision')}>OPEN ARCHIVE CONTROL ROOM ↗</button>}
+        {game.evidenceSolved && <button className="primary-button" onClick={() => transition('decision')}>CONTINUE TO FINAL CHOICE <span>→</span></button>}
       </div>
     )
   }
@@ -578,6 +592,10 @@ export default function App() {
           <p>Each recovered file remains available from this directory.</p>
         </div>}
         <div className="browser-content" ref={contentRef} tabIndex={-1}>
+          <section className="task-guide" aria-live="polite" aria-label="Current task">
+            <span>{taskGuide[0]}</span>
+            <div><strong>{taskGuide[1]}</strong><p>{taskGuide[2]}</p></div>
+          </section>
           {game.chapter === 'intro' && renderIntro()}
           {game.chapter === 'photo' && renderPhoto()}
           {game.chapter === 'messages' && renderMessages()}
@@ -588,11 +606,12 @@ export default function App() {
         <div className="browser-statusbar"><span>◉ {game.chapter === 'intro' ? 'ready — waiting for a response' : game.chapter === 'ending' ? 'write complete — local archive only' : 'reading from damaged local cache'}</span><span>100% <i>▰▰▰▰▰▰▰▱</i></span></div>
       </div>
       <div className={`side-window window ${sideDrag ? 'dragging' : ''}`} style={{ '--drag-x': `${sideOffset.x}px`, '--drag-y': `${sideOffset.y}px` } as CSSProperties}>
-        <div className="side-titlebar" onPointerDown={startSideDrag} onPointerMove={moveSideDrag} onPointerUp={endSideDrag} onPointerCancel={endSideDrag} title="Drag archive window"><span>▤ {t.progress}</span><span>— □ ×</span></div>
+        <div className="side-titlebar" onPointerDown={startSideDrag} onPointerMove={moveSideDrag} onPointerUp={endSideDrag} onPointerCancel={endSideDrag} title="Drag archive window"><span>▤ {t.progress}</span><span>{chapterIndex + 1} / 5</span></div>
         <div className="side-body">
+          <p className="progress-caption">ONE TASK AT A TIME</p>
           {t.chapterNames.map((name, index) => {
             const complete = index === 0 ? game.chapter !== 'intro' : index === 1 ? game.photoSolved : index === 2 ? game.pathSolved : index === 3 ? game.evidenceSolved : game.ending !== null
-            return <div className={`chapter-file ${complete ? 'complete' : ''} ${index === chapterIndex ? 'current' : ''}`} key={name}><span className="file-icon">{complete ? '▣' : '▧'}</span><span>{`0${index} / ${name}`}</span><span className="file-state">{complete ? '✓' : index === chapterIndex ? '…' : '—'}</span></div>
+            return <div className={`chapter-file ${complete ? 'complete' : ''} ${index === chapterIndex ? 'current' : ''}`} key={name} aria-current={index === chapterIndex ? 'step' : undefined}><span className="file-icon">{complete ? '✓' : index === chapterIndex ? '→' : '·'}</span><span>{`0${index + 1} / ${name}`}</span><span className="file-state">{complete ? 'DONE' : index === chapterIndex ? 'NOW' : '—'}</span></div>
           })}
           <div className="side-divider" />
           <div className="side-controls"><button onClick={() => setSound(!sound)}>{sound ? '♪' : '♫'} {sound ? t.toggleSoundOn : t.toggleSound}</button><button onClick={resetGame}>↺ {t.restart}</button></div>
