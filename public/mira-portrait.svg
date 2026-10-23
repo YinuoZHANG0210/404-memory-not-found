@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240">
+  <defs>
+    <linearGradient id="room" x2="0" y2="1"><stop stop-color="#9ca9a0"/><stop offset="1" stop-color="#546874"/></linearGradient>
+    <linearGradient id="shirt" x2="1" y2="1"><stop stop-color="#9adacb"/><stop offset="1" stop-color="#477c7e"/></linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .13"/></feComponentTransfer><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+  </defs>
+  <path fill="url(#room)" d="M0 0h360v240H0z"/>
+  <path fill="#d5cbb4" opacity=".86" d="M27 18h109v134H27z"/><path fill="#96b6b5" d="M34 24h95v120H34z"/><path stroke="#e5d9bd" stroke-width="6" d="M81 24v120M34 82h95"/>
+  <path fill="#425361" d="M138 0h11v240h-11zM0 182h360v58H0z"/><path fill="#d6c8a7" opacity=".65" d="M149 32h29v88h-29z"/>
+  <path fill="#b98971" d="M196 76c2-37 54-48 68-7l-7 63h-57z"/><path fill="#554841" d="M193 79c-4-36 29-55 58-39 18 10 20 30 12 46-8-13-19-22-36-25-7 16-17 26-34 32z"/>
+  <path fill="#ead2b7" d="M203 104c-1-21 8-39 25-42 18-3 31 13 31 35 0 22-12 39-28 39-14 0-27-13-28-32z"/><path fill="#453c39" stroke="#453c39" stroke-width="3" stroke-linecap="round" d="M211 100h5m24-1h5"/>
+  <path fill="none" stroke="#a05f5a" stroke-width="2" d="M221 119q10 6 19-1"/><path fill="url(#shirt)" d="M166 226c4-48 17-73 44-86l15 14 17-15c31 14 44 41 51 87z"/>
+  <path fill="#d88da6" opacity=".66" d="M34 156q25-22 53-1v28H34z"/><path fill="#f2dcae" opacity=".56" d="M16 171h72v4H16z"/>
+  <path fill="#e9e5d9" opacity=".17" d="M0 0h360v240H0z" filter="url(#grain)"/>
+  <path fill="#d88da6" opacity=".24" d="M5 13h4v101H5z"/><path fill="#9adacb" opacity=".2" d="M339 82h5v72h-5z"/>
+  <path fill="none" stroke="#e1d9c5" stroke-opacity=".65" d="M10.5 9.5h339v218h-339z"/>
+</svg>
