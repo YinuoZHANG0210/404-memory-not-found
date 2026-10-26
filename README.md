@@ -8,7 +8,7 @@ A browser-based narrative puzzle set in 2089. As a digital archivist, you enter 
 
 1. Start a recovery session from the opening file.
 2. Reassemble Mira's six-piece photograph by clicking two pieces to swap them.
-3. In the pixel slingshot game, select a floating word, aim at a sentence blank with the left/right arrow keys, hold <kbd>Space</kbd> to charge, then release to fire. A press-and-hold **Fire** button provides the touch alternative. Recover all three transmissions.
+3. In the monochrome pixel slingshot game, select a floating word, freely aim the sling with the pointer (or use ↑/↓ to fine-tune), hold <kbd>Space</kbd> to charge, then release to fire. The projectile must cross the correct blank to score. A press-and-hold **Fire** button provides the touch alternative. Recover all three transmissions.
 4. Read the two source files and classify each claim as something the archive can or cannot prove.
 5. Choose whether to restore everything, preserve verified fragments, or respect the deletion.
 
@@ -18,7 +18,7 @@ The visitor record is fictional game state stored in this browser's local storag
 
 ## Design concept
 
-The site is presented as a damaged personal archive rather than a dashboard. A black pixel-desktop surface uses muted blue-grey, paper, mint, faded-pink, and low-saturation violet accents. Pixel-window title bars, CRT scan lines, file cards, damaged photographs, and archive states evoke an old computer without obscuring the next action.
+The site is presented as a damaged personal archive rather than a dashboard. A black-and-white pixel-desktop surface uses CRT scan lines, monochrome file cards, damaged photographs, and high-contrast archive states to evoke an old computer without obscuring the next action.
 
 ## Technology
 

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import {
   finalizeChoice,
   hasAllMessageClues,
@@ -37,8 +38,8 @@ const copy = {
     ],
     slingshot: {
       label: 'SIGNAL SLINGSHOT / LOAD THE MISSING WORD',
-      intro: 'Words drift above the console. Load one, choose a target, then hold SPACE to charge and release to fire.',
-      choose: '1. LOAD A WORD', aim: '2. AIM AT A BLANK', loaded: 'LOADED', controls: '← → AIM  ·  HOLD SPACE TO CHARGE  ·  RELEASE TO FIRE', power: 'POWER', fire: 'HOLD TO FIRE', chargeTooLow: 'Not enough power — hold SPACE a little longer.',
+      intro: 'Words drift above the console. Load one, freely aim the sling with your pointer, then hold SPACE to charge and release to fire.',
+      choose: '1. LOAD A WORD', aim: '2. FREE AIM', loaded: 'LOADED', controls: 'MOVE POINTER TO AIM  ·  ↑ ↓ FINE TUNE  ·  HOLD SPACE TO CHARGE  ·  RELEASE TO FIRE', power: 'POWER', fire: 'HOLD TO FIRE', chargeTooLow: 'Not enough power — hold SPACE a little longer.',
       words: ['DISAPPEAR', 'SIGNED', 'GUESSING'],
       prompts: ['I chose to', 'The deletion request was', 'Stop'],
       slot: '_____ ', noWord: 'Load a word cartridge first.', miss: 'SIGNAL MISSED — try another blank.', hit: 'LOCK ACQUIRED.',
@@ -76,8 +77,8 @@ const copy = {
     ],
     slingshot: {
       label: '信号弹弓 / 装载缺失文字',
-      intro: '文字会漂浮在控制台上方。装载一个文字，选定目标，长按空格蓄力，松开发射。',
-      choose: '1. 装载文字', aim: '2. 瞄准句子空位', loaded: '已装载', controls: '← → 瞄准 · 长按空格蓄力 · 松开发射', power: '力量', fire: '按住发射', chargeTooLow: '力量不足 — 再多按住空格一会儿。',
+      intro: '文字会漂浮在控制台上方。装载一个文字，用鼠标自由瞄准弹弓，长按空格蓄力，松开发射。',
+      choose: '1. 装载文字', aim: '2. 自由瞄准', loaded: '已装载', controls: '移动鼠标瞄准 · ↑ ↓ 微调 · 长按空格蓄力 · 松开发射', power: '力量', fire: '按住发射', chargeTooLow: '力量不足 — 再多按住空格一会儿。',
       words: ['消失', '签署', '猜测'],
       prompts: ['我选择了', '删除请求已被', '请停止'],
       slot: '_____', noWord: '请先装载一个文字弹药。', miss: '信号偏离 — 换一个空位试试。', hit: '目标锁定。',
@@ -120,10 +121,12 @@ function App() {
   const [selectedTile, setSelectedTile] = useState<number | null>(null)
   const [selectedWord, setSelectedWord] = useState<number | null>(null)
   const [lastShot, setLastShot] = useState<number | null>(null)
-  const [aimTarget, setAimTarget] = useState(0)
+  const [aimAngle, setAimAngle] = useState(-20)
   const [charge, setCharge] = useState(0)
   const [isCharging, setIsCharging] = useState(false)
   const [notice, setNotice] = useState('')
+  const launcherRef = useRef<HTMLDivElement | null>(null)
+  const targetRefs = useRef<Array<HTMLButtonElement | null>>([])
   const t = copy[locale]
   const activeStep = ['photo', 'messages', 'versions', 'decision'].indexOf(game.chapter)
 
@@ -132,7 +135,7 @@ function App() {
 
   const updateGame = (next: GameState) => setGame(next)
   const goTo = (chapter: Chapter) => updateGame({ ...game, chapter, pagesAccessed: recordPage(game.pagesAccessed, chapter) })
-  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setSelectedWord(null); setLastShot(null); setAimTarget(0); setCharge(0); setIsCharging(false); setNotice(t.newSession); setGame(initialGameState()) }
+  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setSelectedWord(null); setLastShot(null); setAimAngle(-20); setCharge(0); setIsCharging(false); setNotice(t.newSession); setGame(initialGameState()) }
   const toggleLanguage = () => setLocale((current) => current === 'en' ? 'zh' : 'en')
 
   const selectTile = (position: number) => {
@@ -156,6 +159,34 @@ function App() {
     setNotice(hasAllMessageClues(openedClues) ? t.slingshot.solved : t.slingshot.hit)
   }
 
+  const aimFromPointer = (clientX: number, clientY: number) => {
+    const launcher = launcherRef.current
+    if (!launcher) return
+    const rect = launcher.getBoundingClientRect()
+    const originX = rect.left + rect.width * .72
+    const originY = rect.top + rect.height * .36
+    const rawAngle = Math.atan2(clientY - originY, clientX - originX) * 180 / Math.PI
+    setAimAngle(Math.max(-68, Math.min(24, rawAngle)))
+  }
+
+  const targetFromAim = (): number | null => {
+    const launcher = launcherRef.current
+    if (!launcher) return null
+    const launcherRect = launcher.getBoundingClientRect()
+    const originX = launcherRect.left + launcherRect.width * .72
+    const originY = launcherRect.top + launcherRect.height * .36
+    let bestTarget: number | null = null
+    let smallestDifference = 17
+    targetRefs.current.forEach((target, index) => {
+      if (!target || game.openedClues.includes(index)) return
+      const targetRect = target.getBoundingClientRect()
+      const targetAngle = Math.atan2(targetRect.top + targetRect.height / 2 - originY, targetRect.left + targetRect.width / 2 - originX) * 180 / Math.PI
+      const difference = Math.abs(targetAngle - aimAngle)
+      if (difference < smallestDifference) { smallestDifference = difference; bestTarget = index }
+    })
+    return bestTarget
+  }
+
   const startCharge = () => {
     if (selectedWord === null) { setNotice(t.slingshot.noWord); return }
     if (!isCharging) { setCharge(8); setIsCharging(true) }
@@ -165,7 +196,9 @@ function App() {
     if (!isCharging) return
     setIsCharging(false)
     if (charge < 35) { setCharge(0); setNotice(t.slingshot.chargeTooLow); return }
-    launchWord(aimTarget)
+    const targetIndex = targetFromAim()
+    if (targetIndex === null) { setLastShot(-1); setSelectedWord(null); setNotice(t.slingshot.miss); setCharge(0); return }
+    launchWord(targetIndex)
     setCharge(0)
   }
 
@@ -178,9 +211,9 @@ function App() {
   useEffect(() => {
     if (game.chapter !== 'messages') return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
+      if (event.code === 'ArrowUp' || event.code === 'ArrowDown') {
         event.preventDefault()
-        setAimTarget((target) => event.code === 'ArrowLeft' ? (target + 2) % 3 : (target + 1) % 3)
+        setAimAngle((angle) => Math.max(-68, Math.min(24, angle + (event.code === 'ArrowUp' ? -6 : 6))))
       }
       if (event.code === 'Space') { event.preventDefault(); if (!event.repeat) startCharge() }
     }
@@ -188,7 +221,7 @@ function App() {
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
     return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
-  }, [game.chapter, selectedWord, aimTarget, charge, isCharging, t])
+  }, [game.chapter, selectedWord, aimAngle, charge, isCharging, t])
 
   const answer = (claim: 'request' | 'location', value: 'verified' | 'inferred') => {
     updateGame({ ...game, evidenceAnswers: { ...game.evidenceAnswers, [claim]: value } }); setNotice(t.evidenceChoice)
@@ -232,14 +265,14 @@ function App() {
       <section className="slingshot-console" aria-label={t.slingshot.label}>
         <div className="console-title"><span>▣</span>{t.slingshot.label}<b>×</b></div>
         <p className="slingshot-intro">{t.slingshot.intro}</p>
-        <div className="slingshot-playfield">
+        <div className="slingshot-playfield" onPointerMove={(event) => aimFromPointer(event.clientX, event.clientY)}>
           <div className="sky-words"><p className="mini-label">{t.slingshot.choose}</p>{t.slingshot.words.map((word, index) => <button className={`word-cartridge sky-word word-${index} ${selectedWord === index ? 'is-selected' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div>
           <div className="slingshot-floor">
-            <div className="launch-control"><div className="launcher" aria-hidden="true"><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div><div className="power-meter"><span>{t.slingshot.power}</span><i><b style={{ width: `${charge}%` }} /></i></div><button className={`fire-button ${isCharging ? 'is-charging' : ''}`} type="button" onPointerDown={startCharge} onPointerUp={fireWord} onPointerCancel={fireWord} onPointerLeave={fireWord}>{t.slingshot.fire}</button></div>
-            <div className="trajectory" aria-hidden="true"><i /><i /><i /><i /></div>
+            <div className="launch-control"><div className="launcher" ref={launcherRef} aria-hidden="true" style={{ '--aim-angle': `${aimAngle}deg` } as CSSProperties}><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div><div className="power-meter"><span>{t.slingshot.power}</span><i><b style={{ width: `${charge}%` }} /></i></div><button className={`fire-button ${isCharging ? 'is-charging' : ''}`} type="button" onPointerDown={startCharge} onPointerUp={fireWord} onPointerCancel={fireWord} onPointerLeave={fireWord}>{t.slingshot.fire}</button></div>
+            <div className="trajectory" aria-hidden="true" style={{ '--aim-angle': `${aimAngle}deg` } as CSSProperties}><i /><i /><i /><i /></div>
             <div className="sentence-targets"><p className="mini-label">{t.slingshot.aim}</p>{t.slingshot.prompts.map((prompt, index) => {
               const solved = game.openedClues.includes(index)
-              return <button className={`sentence-target ${solved ? 'is-filled' : ''} ${lastShot === index ? 'was-shot' : ''} ${aimTarget === index ? 'is-aimed' : ''}`} type="button" key={senders[index]} onClick={() => setAimTarget(index)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); setAimTarget(index) }}>
+              return <button className={`sentence-target ${solved ? 'is-filled' : ''} ${lastShot === index ? 'was-shot' : ''}`} type="button" key={senders[index]} ref={(node) => { targetRefs.current[index] = node }} onFocus={() => { const target = targetRefs.current[index]; const launcher = launcherRef.current; if (target && launcher) { const a = target.getBoundingClientRect(); const b = launcher.getBoundingClientRect(); setAimAngle(Math.atan2(a.top + a.height / 2 - (b.top + b.height * .36), a.left + a.width / 2 - (b.left + b.width * .72)) * 180 / Math.PI) } }}>
                 <span>{senders[index]}</span><strong>{prompt} <mark>{solved ? t.slingshot.words[index] : t.slingshot.slot}</mark></strong><em>{solved ? t.recovered : 'TARGET'}</em>
               </button>
             })}</div>
