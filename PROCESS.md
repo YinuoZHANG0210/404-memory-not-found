@@ -4,22 +4,22 @@
 
 I began with a question rather than a plot: if a digital archive can reconstruct a person from fragments, does it have the right to do so? I chose a small browser-based mystery because an old personal webpage can itself become both the setting and the interface. The intended user is someone interested in short narrative games, web nostalgia, and light puzzles. A first playthrough is designed to take roughly five to eight minutes.
 
-The central interaction loop is: inspect damaged material, make a repair or judgement, receive a visible archival response, and use that response to decide what to inspect next. The five chapters move from the satisfying act of restoring an image to a more uncomfortable act of deciding whether a restoration should happen at all.
+The central interaction loop is: inspect damaged material, make a repair or judgement, receive a visible archival response, and use that response to decide what to inspect next. The four tasks move from the satisfying act of restoring an image to a more uncomfortable act of deciding whether a restoration should happen at all.
 
 ## Design and code changes
 
-The initial interaction plan treated the broken URL as a standalone rearrangement task. During implementation, I changed it so that the three URL fragments remain visibly locked until the player has exposed all three message-board clues. This makes the sequence clearer: the player first discovers the evidence, then uses it to reconstruct the address. The locked state includes an explanation, and the puzzle remains playable through drag-and-drop or click-to-swap.
+After a design review, I removed the simulated browser chrome, floating archive panels, optional hint system, and URL-rearrangement task. They made the interface look busier than the game needed to be, and hid the next action. The revised structure has one main visual area and four numbered tasks: photograph, messages, evidence, and final choice. Each screen states the action in one sentence and only shows its forward button after the required action is complete.
 
-I also added click and keyboard alternatives to interactions that would otherwise depend on hover or dragging. For example, players can click two photograph tiles to exchange them, focus a corrupted message to reveal it, and use standard buttons for the evidence classification. This keeps the intended interaction while making the experience workable on touch devices and with keyboard navigation.
+I also made every interaction a native button. Players click two photograph tiles to exchange them, click each message to recover it, and use clear two-option buttons for evidence classification. This keeps the project workable with mouse, keyboard, and touch. The page retains visible focus states and honours reduced-motion preferences.
 
-The visitor record was deliberately kept local. It counts only in-game restoration attempts, accessed pages, requested hints, and the final fictional archive decision. It uses browser `localStorage`, has a visible privacy notice, and sends no data to a server.
+The small amount of game state is deliberately kept local. It remembers only puzzle progress and the fictional archive outcome in browser `localStorage`; no identity information or activity is sent to a server.
 
 ## AI tools and judgement
 
 I used an AI coding assistant during development to help shape the React/TypeScript implementation, identify edge cases, and review wording and accessibility alternatives.
 
-- **Suggestion kept:** use a small, deterministic six-tile image puzzle plus a click-to-swap fallback. This fit the short target playtime while giving the player a real action-and-response loop.
-- **Suggestion changed:** an early direction would have made the experience look like a futuristic analytics dashboard. I rejected that visual approach because it weakened the premise of encountering an abandoned personal webpage. The implemented visual language instead uses a retro browser frame, damaged links, flat paper-like documents, and restrained glitches.
+- **Suggestion kept:** use a small, deterministic six-tile image puzzle plus click-to-swap. This fit the short target playtime while giving the player a real action-and-response loop.
+- **Suggestion changed:** an early direction treated the project as a dense old-browser simulation with several simultaneous puzzle surfaces. I changed it after reviewing the wayfinding: the final version has one task at a time and a calmer archive-game layout. It preserves the retro, damaged-web mood with file labels, scan lines, an original portrait, and restrained glitches rather than large amounts of interface chrome.
 
 AI output was reviewed and adapted for the project. The narrative, project decisions, credits, and final submission claims must remain the author's responsibility.
 
