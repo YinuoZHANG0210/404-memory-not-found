@@ -35,6 +35,15 @@ const copy = {
       ['This was not an error.', 'The deletion request was signed.'],
       ['A private file remains.', 'It asks the archive to stop guessing.'],
     ],
+    slingshot: {
+      label: 'SIGNAL SLINGSHOT / LOAD THE MISSING WORD',
+      intro: 'Choose a word cartridge, then launch it into the matching blank. You can drag it, or use two clicks.',
+      choose: '1. LOAD A WORD', aim: '2. FIRE AT A BLANK', loaded: 'LOADED',
+      words: ['DISAPPEAR', 'SIGNED', 'GUESSING'],
+      prompts: ['I chose to', 'The deletion request was', 'Stop'],
+      slot: '_____ ', noWord: 'Load a word cartridge first.', miss: 'SIGNAL MISSED — try another blank.', hit: 'LOCK ACQUIRED.',
+      solved: 'TRANSMISSION COMPLETE / 3 OF 3 SIGNALS RESTORED',
+    },
     photoDefault: 'Six fragments. One missing portrait.', photoFirst: 'Choose one more fragment to swap.', photoClear: 'Selection cleared.', photoUnsolved: 'Fragments swapped. Keep looking for Mira’s face and the window edge.', photoSolved: 'Image recovered. Open the messages.',
     openMessages: 'OPEN RECOVERED MESSAGES', open: 'CLICK TO OPEN', recovered: 'RECOVERED', messagesDefault: 'messages opened', messagesOne: 'Message recovered. Two more remain.', messagesDone: 'All messages recovered. Check the evidence.',
     sourceOne: '18.06.2007 — “Please delete my profile and private records.”', sourceTwo: '“Mira probably spent a summer in Lisbon.” No original source attached.', primary: 'PRIMARY SOURCE', guess: 'SYSTEM GUESS',
@@ -65,6 +74,15 @@ const copy = {
       ['这不是系统错误。', '删除请求经过了签署。'],
       ['还留有一份私人文件。', '它请求档案不要再猜测。'],
     ],
+    slingshot: {
+      label: '信号弹弓 / 装载缺失文字',
+      intro: '选择一个文字弹药，再把它发射到对应的空位。可拖拽，也可分两次点击。',
+      choose: '1. 装载文字', aim: '2. 发射到空位', loaded: '已装载',
+      words: ['消失', '签署', '猜测'],
+      prompts: ['我选择了', '删除请求已被', '请停止'],
+      slot: '_____', noWord: '请先装载一个文字弹药。', miss: '信号偏离 — 换一个空位试试。', hit: '目标锁定。',
+      solved: '传输完成 / 3 OF 3 信号已恢复',
+    },
     photoDefault: '六块碎片，一张遗失的肖像。', photoFirst: '再选择一块碎片来交换。', photoClear: '已取消选择。', photoUnsolved: '碎片已交换。继续寻找 Mira 的脸和窗户边缘。', photoSolved: '照片已恢复。打开留言吧。',
     openMessages: '打开已恢复的留言', open: '点击打开', recovered: '已恢复', messagesDefault: '条留言已打开', messagesOne: '留言已恢复，还剩两条。', messagesDone: '全部留言已恢复。检查证据。',
     sourceOne: '18.06.2007 — “请删除我的个人主页和私人记录。”', sourceTwo: '“Mira 可能在里斯本度过一个夏天。” 没有附上原始来源。', primary: '一手来源', guess: '系统推测',
@@ -100,6 +118,8 @@ function App() {
   const [game, setGame] = useState<GameState>(loadSession)
   const [locale, setLocale] = useState<Locale>(loadLocale)
   const [selectedTile, setSelectedTile] = useState<number | null>(null)
+  const [selectedWord, setSelectedWord] = useState<number | null>(null)
+  const [lastShot, setLastShot] = useState<number | null>(null)
   const [notice, setNotice] = useState('')
   const t = copy[locale]
   const activeStep = ['photo', 'messages', 'versions', 'decision'].indexOf(game.chapter)
@@ -109,7 +129,7 @@ function App() {
 
   const updateGame = (next: GameState) => setGame(next)
   const goTo = (chapter: Chapter) => updateGame({ ...game, chapter, pagesAccessed: recordPage(game.pagesAccessed, chapter) })
-  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setNotice(t.newSession); setGame(initialGameState()) }
+  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setSelectedWord(null); setLastShot(null); setNotice(t.newSession); setGame(initialGameState()) }
   const toggleLanguage = () => setLocale((current) => current === 'en' ? 'zh' : 'en')
 
   const selectTile = (position: number) => {
@@ -122,11 +142,15 @@ function App() {
     setSelectedTile(null); setNotice(photoSolved ? t.photoSolved : t.photoUnsolved)
   }
 
-  const revealMessage = (index: number) => {
-    if (game.openedClues.includes(index)) return
-    const openedClues = [...game.openedClues, index]
+  const launchWord = (targetIndex: number) => {
+    if (selectedWord === null) { setNotice(t.slingshot.noWord); return }
+    setLastShot(targetIndex)
+    if (selectedWord !== targetIndex) { setSelectedWord(null); setNotice(t.slingshot.miss); return }
+    if (game.openedClues.includes(targetIndex)) { setSelectedWord(null); return }
+    const openedClues = [...game.openedClues, targetIndex]
     updateGame({ ...game, openedClues })
-    setNotice(hasAllMessageClues(openedClues) ? t.messagesDone : t.messagesOne)
+    setSelectedWord(null)
+    setNotice(hasAllMessageClues(openedClues) ? t.slingshot.solved : t.slingshot.hit)
   }
 
   const answer = (claim: 'request' | 'location', value: 'verified' | 'inferred') => {
@@ -168,10 +192,24 @@ function App() {
 
     {game.chapter === 'messages' && <section className="screen task-screen">
       <StepHeading number="02" title={t.tasks[1].title} instruction={t.tasks[1].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
-      <div className="message-grid">{t.messages.map((message, index) => {
-        const opened = game.openedClues.includes(index)
-        return <button className={`message-card ${opened ? 'is-open' : ''}`} type="button" onClick={() => revealMessage(index)} key={senders[index]}><span>{senders[index]} <i>18.06.2007</i></span><strong>{opened ? message[1] : message[0]}</strong><em>{opened ? t.recovered : t.open}</em></button>
-      })}</div>
+      <section className="slingshot-console" aria-label={t.slingshot.label}>
+        <div className="console-title"><span>▣</span>{t.slingshot.label}<b>×</b></div>
+        <p className="slingshot-intro">{t.slingshot.intro}</p>
+        <div className="slingshot-playfield">
+          <div className="launcher" aria-hidden="true"><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div>
+          <div className="trajectory" aria-hidden="true"><i /><i /><i /><i /></div>
+          <div className="sentence-targets">
+            <p className="mini-label">{t.slingshot.aim}</p>
+            {t.slingshot.prompts.map((prompt, index) => {
+              const solved = game.openedClues.includes(index)
+              return <button className={`sentence-target ${solved ? 'is-filled' : ''} ${lastShot === index ? 'was-shot' : ''}`} type="button" key={senders[index]} onClick={() => launchWord(index)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); launchWord(index) }}>
+                <span>{senders[index]}</span><strong>{prompt} <mark>{solved ? t.slingshot.words[index] : t.slingshot.slot}</mark></strong><em>{solved ? t.recovered : 'TARGET'}</em>
+              </button>
+            })}
+          </div>
+        </div>
+        <div className="word-cartridges"><p className="mini-label">{t.slingshot.choose}</p><div>{t.slingshot.words.map((word, index) => <button className={`word-cartridge ${selectedWord === index ? 'is-selected' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div></div>
+      </section>
       <StatusLine label={t.status} message={notice || `${game.openedClues.length}/3 ${t.messagesDefault}`} />
       {hasAllMessageClues(game.openedClues) && <button className="action-button" type="button" onClick={() => goTo('versions')}>{locale === 'zh' ? '检查证据' : 'CHECK THE EVIDENCE'}<span>→</span></button>}
     </section>}

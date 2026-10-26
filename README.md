@@ -8,7 +8,7 @@ A browser-based narrative puzzle set in 2089. As a digital archivist, you enter 
 
 1. Start a recovery session from the opening file.
 2. Reassemble Mira's six-piece photograph by clicking two pieces to swap them.
-3. Open all three recovered messages.
+3. Load a missing-word cartridge into the pixel slingshot, then drag it (or select it and click) into the matching sentence blank. Recover all three transmissions.
 4. Read the two source files and classify each claim as something the archive can or cannot prove.
 5. Choose whether to restore everything, preserve verified fragments, or respect the deletion.
 
@@ -18,7 +18,7 @@ The visitor record is fictional game state stored in this browser's local storag
 
 ## Design concept
 
-The site is presented as a damaged personal archive rather than a dashboard. A single recovery surface uses a muted blue-grey, paper, mint, faded-pink, and low-saturation violet palette. Pixel-window title bars, CRT scan lines, file cards, damaged photographs, and archive states evoke an old desktop without obscuring the next action.
+The site is presented as a damaged personal archive rather than a dashboard. A black pixel-desktop surface uses muted blue-grey, paper, mint, faded-pink, and low-saturation violet accents. Pixel-window title bars, CRT scan lines, file cards, damaged photographs, and archive states evoke an old computer without obscuring the next action.
 
 ## Technology
 
@@ -77,7 +77,7 @@ src/
 ## Design principles
 
 - **Web as artifact:** File labels, damaged photographs, scan lines, and recovery states make the archive the setting.
-- **One task at a time:** Each stage has a single visible instruction and primary action, so the mystery stays legible.
+- **One task at a time:** Each stage has a single visible instruction and primary action, so the mystery stays legible; the message stage adds a small aim-and-fill slingshot challenge rather than simple card clicks.
 - **Evidence over completion:** The version puzzle distinguishes a signed request from an unsupported but plausible reconstruction.
 - **Agency without a verdict:** Three endings show distinct consequences without declaring one morally correct.
 - **Privacy by construction:** Visitor counters use only local game state and local storage; there is no analytics or network submission.
