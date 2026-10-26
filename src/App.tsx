@@ -37,8 +37,8 @@ const copy = {
     ],
     slingshot: {
       label: 'SIGNAL SLINGSHOT / LOAD THE MISSING WORD',
-      intro: 'Choose a word cartridge, then launch it into the matching blank. You can drag it, or use two clicks.',
-      choose: '1. LOAD A WORD', aim: '2. FIRE AT A BLANK', loaded: 'LOADED',
+      intro: 'Words drift above the console. Load one, choose a target, then hold SPACE to charge and release to fire.',
+      choose: '1. LOAD A WORD', aim: '2. AIM AT A BLANK', loaded: 'LOADED', controls: '← → AIM  ·  HOLD SPACE TO CHARGE  ·  RELEASE TO FIRE', power: 'POWER', fire: 'HOLD TO FIRE', chargeTooLow: 'Not enough power — hold SPACE a little longer.',
       words: ['DISAPPEAR', 'SIGNED', 'GUESSING'],
       prompts: ['I chose to', 'The deletion request was', 'Stop'],
       slot: '_____ ', noWord: 'Load a word cartridge first.', miss: 'SIGNAL MISSED — try another blank.', hit: 'LOCK ACQUIRED.',
@@ -76,8 +76,8 @@ const copy = {
     ],
     slingshot: {
       label: '信号弹弓 / 装载缺失文字',
-      intro: '选择一个文字弹药，再把它发射到对应的空位。可拖拽，也可分两次点击。',
-      choose: '1. 装载文字', aim: '2. 发射到空位', loaded: '已装载',
+      intro: '文字会漂浮在控制台上方。装载一个文字，选定目标，长按空格蓄力，松开发射。',
+      choose: '1. 装载文字', aim: '2. 瞄准句子空位', loaded: '已装载', controls: '← → 瞄准 · 长按空格蓄力 · 松开发射', power: '力量', fire: '按住发射', chargeTooLow: '力量不足 — 再多按住空格一会儿。',
       words: ['消失', '签署', '猜测'],
       prompts: ['我选择了', '删除请求已被', '请停止'],
       slot: '_____', noWord: '请先装载一个文字弹药。', miss: '信号偏离 — 换一个空位试试。', hit: '目标锁定。',
@@ -120,6 +120,9 @@ function App() {
   const [selectedTile, setSelectedTile] = useState<number | null>(null)
   const [selectedWord, setSelectedWord] = useState<number | null>(null)
   const [lastShot, setLastShot] = useState<number | null>(null)
+  const [aimTarget, setAimTarget] = useState(0)
+  const [charge, setCharge] = useState(0)
+  const [isCharging, setIsCharging] = useState(false)
   const [notice, setNotice] = useState('')
   const t = copy[locale]
   const activeStep = ['photo', 'messages', 'versions', 'decision'].indexOf(game.chapter)
@@ -129,7 +132,7 @@ function App() {
 
   const updateGame = (next: GameState) => setGame(next)
   const goTo = (chapter: Chapter) => updateGame({ ...game, chapter, pagesAccessed: recordPage(game.pagesAccessed, chapter) })
-  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setSelectedWord(null); setLastShot(null); setNotice(t.newSession); setGame(initialGameState()) }
+  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setSelectedWord(null); setLastShot(null); setAimTarget(0); setCharge(0); setIsCharging(false); setNotice(t.newSession); setGame(initialGameState()) }
   const toggleLanguage = () => setLocale((current) => current === 'en' ? 'zh' : 'en')
 
   const selectTile = (position: number) => {
@@ -152,6 +155,40 @@ function App() {
     setSelectedWord(null)
     setNotice(hasAllMessageClues(openedClues) ? t.slingshot.solved : t.slingshot.hit)
   }
+
+  const startCharge = () => {
+    if (selectedWord === null) { setNotice(t.slingshot.noWord); return }
+    if (!isCharging) { setCharge(8); setIsCharging(true) }
+  }
+
+  const fireWord = () => {
+    if (!isCharging) return
+    setIsCharging(false)
+    if (charge < 35) { setCharge(0); setNotice(t.slingshot.chargeTooLow); return }
+    launchWord(aimTarget)
+    setCharge(0)
+  }
+
+  useEffect(() => {
+    if (!isCharging) return
+    const timer = window.setInterval(() => setCharge((value) => Math.min(100, value + 7)), 55)
+    return () => window.clearInterval(timer)
+  }, [isCharging])
+
+  useEffect(() => {
+    if (game.chapter !== 'messages') return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code === 'ArrowLeft' || event.code === 'ArrowRight') {
+        event.preventDefault()
+        setAimTarget((target) => event.code === 'ArrowLeft' ? (target + 2) % 3 : (target + 1) % 3)
+      }
+      if (event.code === 'Space') { event.preventDefault(); if (!event.repeat) startCharge() }
+    }
+    const onKeyUp = (event: KeyboardEvent) => { if (event.code === 'Space') { event.preventDefault(); fireWord() } }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
+  }, [game.chapter, selectedWord, aimTarget, charge, isCharging, t])
 
   const answer = (claim: 'request' | 'location', value: 'verified' | 'inferred') => {
     updateGame({ ...game, evidenceAnswers: { ...game.evidenceAnswers, [claim]: value } }); setNotice(t.evidenceChoice)
@@ -196,19 +233,19 @@ function App() {
         <div className="console-title"><span>▣</span>{t.slingshot.label}<b>×</b></div>
         <p className="slingshot-intro">{t.slingshot.intro}</p>
         <div className="slingshot-playfield">
-          <div className="launcher" aria-hidden="true"><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div>
-          <div className="trajectory" aria-hidden="true"><i /><i /><i /><i /></div>
-          <div className="sentence-targets">
-            <p className="mini-label">{t.slingshot.aim}</p>
-            {t.slingshot.prompts.map((prompt, index) => {
+          <div className="sky-words"><p className="mini-label">{t.slingshot.choose}</p>{t.slingshot.words.map((word, index) => <button className={`word-cartridge sky-word word-${index} ${selectedWord === index ? 'is-selected' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div>
+          <div className="slingshot-floor">
+            <div className="launch-control"><div className="launcher" aria-hidden="true"><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div><div className="power-meter"><span>{t.slingshot.power}</span><i><b style={{ width: `${charge}%` }} /></i></div><button className={`fire-button ${isCharging ? 'is-charging' : ''}`} type="button" onPointerDown={startCharge} onPointerUp={fireWord} onPointerCancel={fireWord} onPointerLeave={fireWord}>{t.slingshot.fire}</button></div>
+            <div className="trajectory" aria-hidden="true"><i /><i /><i /><i /></div>
+            <div className="sentence-targets"><p className="mini-label">{t.slingshot.aim}</p>{t.slingshot.prompts.map((prompt, index) => {
               const solved = game.openedClues.includes(index)
-              return <button className={`sentence-target ${solved ? 'is-filled' : ''} ${lastShot === index ? 'was-shot' : ''}`} type="button" key={senders[index]} onClick={() => launchWord(index)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); launchWord(index) }}>
+              return <button className={`sentence-target ${solved ? 'is-filled' : ''} ${lastShot === index ? 'was-shot' : ''} ${aimTarget === index ? 'is-aimed' : ''}`} type="button" key={senders[index]} onClick={() => setAimTarget(index)} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); setAimTarget(index) }}>
                 <span>{senders[index]}</span><strong>{prompt} <mark>{solved ? t.slingshot.words[index] : t.slingshot.slot}</mark></strong><em>{solved ? t.recovered : 'TARGET'}</em>
               </button>
-            })}
+            })}</div>
           </div>
         </div>
-        <div className="word-cartridges"><p className="mini-label">{t.slingshot.choose}</p><div>{t.slingshot.words.map((word, index) => <button className={`word-cartridge ${selectedWord === index ? 'is-selected' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div></div>
+        <p className="keyboard-controls">{t.slingshot.controls}</p>
       </section>
       <StatusLine label={t.status} message={notice || `${game.openedClues.length}/3 ${t.messagesDefault}`} />
       {hasAllMessageClues(game.openedClues) && <button className="action-button" type="button" onClick={() => goTo('versions')}>{locale === 'zh' ? '检查证据' : 'CHECK THE EVIDENCE'}<span>→</span></button>}

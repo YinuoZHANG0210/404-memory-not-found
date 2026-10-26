@@ -8,11 +8,11 @@ A browser-based narrative puzzle set in 2089. As a digital archivist, you enter 
 
 1. Start a recovery session from the opening file.
 2. Reassemble Mira's six-piece photograph by clicking two pieces to swap them.
-3. Load a missing-word cartridge into the pixel slingshot, then drag it (or select it and click) into the matching sentence blank. Recover all three transmissions.
+3. In the pixel slingshot game, select a floating word, aim at a sentence blank with the left/right arrow keys, hold <kbd>Space</kbd> to charge, then release to fire. A press-and-hold **Fire** button provides the touch alternative. Recover all three transmissions.
 4. Read the two source files and classify each claim as something the archive can or cannot prove.
 5. Choose whether to restore everything, preserve verified fragments, or respect the deletion.
 
-Every stage has one short instruction, visible progress, an accessible button action, and a response line explaining what happened. Use the **EN / 中文** control in the top-right corner to switch the complete game interface between English and Simplified Chinese; the preference is saved locally. **Restart** always begins a clean run.
+Every stage is contained in one fixed game viewport, with no page-level vertical scrolling. Each has one short instruction, visible progress, an accessible button action, and a response line explaining what happened. Use the **EN / 中文** control in the top-right corner to switch the complete game interface between English and Simplified Chinese; the preference is saved locally. **Restart** always begins a clean run.
 
 The visitor record is fictional game state stored in this browser's local storage. No analytics, identity data, or activity is sent to a server.
 
