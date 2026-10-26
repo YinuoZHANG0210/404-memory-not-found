@@ -12,13 +12,13 @@ A browser-based narrative puzzle set in 2089. As a digital archivist, you enter 
 4. Read the two source files and classify each claim as something the archive can or cannot prove.
 5. Choose whether to restore everything, preserve verified fragments, or respect the deletion.
 
-Every stage has one short instruction, visible progress, an accessible button action, and a response line explaining what happened. **Restart** always begins a clean run.
+Every stage has one short instruction, visible progress, an accessible button action, and a response line explaining what happened. Use the **EN / 中文** control in the top-right corner to switch the complete game interface between English and Simplified Chinese; the preference is saved locally. **Restart** always begins a clean run.
 
 The visitor record is fictional game state stored in this browser's local storage. No analytics, identity data, or activity is sent to a server.
 
 ## Design concept
 
-The site is presented as a damaged personal archive rather than a dashboard. A single recovery surface uses a muted blue-grey, paper, mint, and faded-pink palette. The interface reduces old-web visual references to file tabs, scan lines, damaged photographs, and archive states, so the story is visible without pretending to be a complete browser.
+The site is presented as a damaged personal archive rather than a dashboard. A single recovery surface uses a muted blue-grey, paper, mint, faded-pink, and low-saturation violet palette. Pixel-window title bars, CRT scan lines, file cards, damaged photographs, and archive states evoke an old desktop without obscuring the next action.
 
 ## Technology
 

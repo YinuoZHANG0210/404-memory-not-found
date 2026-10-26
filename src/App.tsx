@@ -10,42 +10,77 @@ import {
 } from './game'
 import type { Chapter, Ending, GameState } from './game'
 
+type Locale = 'en' | 'zh'
+
 const STORAGE_KEY = 'memory-not-found-save-v2'
+const LOCALE_KEY = 'memory-not-found-locale'
 const portraitAsset = `${import.meta.env.BASE_URL}mira-portrait.svg`
 
-const steps: Array<{ chapter: Exclude<Chapter, 'intro' | 'ending'>; number: string; label: string }> = [
-  { chapter: 'photo', number: '01', label: 'IMAGE' },
-  { chapter: 'messages', number: '02', label: 'MESSAGES' },
-  { chapter: 'versions', number: '03', label: 'EVIDENCE' },
-  { chapter: 'decision', number: '04', label: 'CHOICE' },
-]
+const copy = {
+  en: {
+    progress: ['IMAGE', 'MESSAGES', 'EVIDENCE', 'CHOICE'],
+    restart: 'RESTART', language: '中文', languageLabel: '切换为中文',
+    session: 'RECOVERY SESSION / 2089', introTitle: <>Someone deleted<br />their memory.</>,
+    intro: 'You found a damaged personal archive. Recover only what the files can actually tell you — then decide what should remain.',
+    howTo: 'HOW TO PLAY', howToText: 'Complete four small recovery tasks. Every screen tells you exactly what to do.', begin: 'BEGIN RECOVERY',
+    lastFound: 'MIRA_17 / LAST FOUND', preview: 'image_preview.jpg', damaged: 'FILE DAMAGED',
+    tasks: [
+      { title: 'Rebuild the photograph', instruction: 'Click one fragment, then another, to swap their positions.' },
+      { title: 'Open the hidden messages', instruction: 'Open every message. The recovered lines explain why the archive broke.' },
+      { title: 'Separate fact from fiction', instruction: 'Use the two source files, then classify both claims.' },
+      { title: 'Choose what the archive becomes', instruction: 'There is no correct ending. Pick the responsibility you want the archive to take.' },
+    ],
+    messages: [
+      ['I was not lost.', 'I chose to disappear.'],
+      ['This was not an error.', 'The deletion request was signed.'],
+      ['A private file remains.', 'It asks the archive to stop guessing.'],
+    ],
+    photoDefault: 'Six fragments. One missing portrait.', photoFirst: 'Choose one more fragment to swap.', photoClear: 'Selection cleared.', photoUnsolved: 'Fragments swapped. Keep looking for Mira’s face and the window edge.', photoSolved: 'Image recovered. Open the messages.',
+    openMessages: 'OPEN RECOVERED MESSAGES', open: 'CLICK TO OPEN', recovered: 'RECOVERED', messagesDefault: 'messages opened', messagesOne: 'Message recovered. Two more remain.', messagesDone: 'All messages recovered. Check the evidence.',
+    sourceOne: '18.06.2007 — “Please delete my profile and private records.”', sourceTwo: '“Mira probably spent a summer in Lisbon.” No original source attached.', primary: 'PRIMARY SOURCE', guess: 'SYSTEM GUESS',
+    requestClaim: 'Mira asked for her private records to be deleted.', locationClaim: 'Mira spent a summer in Lisbon.', prove: 'CAN PROVE', cannotProve: 'CANNOT PROVE', check: 'CHECK MY ANSWERS',
+    evidenceDefault: 'A convincing story is not always evidence.', evidenceChoice: 'Choice recorded. Compare it with the source files.', evidenceWrong: 'Not quite. One claim is evidence; the other is an inference.', evidenceRight: 'Evidence verified. You can now choose the archive outcome.', finalChoice: 'MAKE THE FINAL CHOICE',
+    endings: {
+      restore: ['RESTORE EVERYTHING', 'THE PERFECT ARCHIVE', 'The missing site returns complete and convincing. It also keeps a beautiful summer in Lisbon that no record can prove.'],
+      preserve: ['PRESERVE VERIFIED FRAGMENTS', 'THE INCOMPLETE TRUTH', 'The signed request and public fragments remain. The gaps stay visible, because the archive refuses to make them up.'],
+      release: ['RESPECT THE DELETION', '404: MEMORY NOT FOUND', 'The file is released. The archive records only that someone chose not to turn absence into a story.'],
+    },
+    outcome: 'ARCHIVE OUTCOME / SAVED LOCALLY', playAgain: 'PLAY AGAIN', otherOutcomes: 'SEE OTHER OUTCOMES', status: 'ARCHIVE STATUS', footer: 'FICTIONAL PERSONAL ARCHIVE · NO DATA LEAVES THIS DEVICE', newSession: 'New recovery session started.',
+  },
+  zh: {
+    progress: ['照片', '留言', '证据', '选择'],
+    restart: '重新开始', language: 'EN', languageLabel: 'Switch to English',
+    session: '恢复会话 / 2089', introTitle: <>有人删除了<br />自己的记忆。</>,
+    intro: '你找到了一份受损的个人档案。恢复文件真正能告诉你的内容，再决定什么应当被留下。',
+    howTo: '怎么玩', howToText: '完成四个小型恢复任务。每一页都会告诉你下一步该做什么。', begin: '开始恢复',
+    lastFound: 'MIRA_17 / 最后发现', preview: '照片预览.jpg', damaged: '文件已损坏',
+    tasks: [
+      { title: '重建照片', instruction: '先点击一块碎片，再点击另一块，即可交换位置。' },
+      { title: '打开隐藏留言', instruction: '打开全部留言。恢复的文字会解释档案为何破损。' },
+      { title: '区分事实与推测', instruction: '阅读两份来源文件，再为两条说法分类。' },
+      { title: '选择档案的结局', instruction: '没有正确结局。请选择你希望档案承担的责任。' },
+    ],
+    messages: [
+      ['我不是迷失了。', '是我选择了消失。'],
+      ['这不是系统错误。', '删除请求经过了签署。'],
+      ['还留有一份私人文件。', '它请求档案不要再猜测。'],
+    ],
+    photoDefault: '六块碎片，一张遗失的肖像。', photoFirst: '再选择一块碎片来交换。', photoClear: '已取消选择。', photoUnsolved: '碎片已交换。继续寻找 Mira 的脸和窗户边缘。', photoSolved: '照片已恢复。打开留言吧。',
+    openMessages: '打开已恢复的留言', open: '点击打开', recovered: '已恢复', messagesDefault: '条留言已打开', messagesOne: '留言已恢复，还剩两条。', messagesDone: '全部留言已恢复。检查证据。',
+    sourceOne: '18.06.2007 — “请删除我的个人主页和私人记录。”', sourceTwo: '“Mira 可能在里斯本度过一个夏天。” 没有附上原始来源。', primary: '一手来源', guess: '系统推测',
+    requestClaim: 'Mira 要求删除她的私人记录。', locationClaim: 'Mira 在里斯本度过了一个夏天。', prove: '可以证明', cannotProve: '无法证明', check: '核对我的答案',
+    evidenceDefault: '一个令人信服的故事不一定就是证据。', evidenceChoice: '已记录选择。请与来源文件比对。', evidenceWrong: '还不对。一条是证据，另一条只是推测。', evidenceRight: '证据已核验。现在可以选择档案结局。', finalChoice: '做出最终选择',
+    endings: {
+      restore: ['恢复全部内容', '完美档案', '遗失的网站回来得完整而可信。它也保留了那段没有任何记录可以证明的里斯本夏日。'],
+      preserve: ['保留已验证片段', '不完整的真相', '签署请求与公开碎片被保留。空白仍然可见，因为档案拒绝编造。'],
+      release: ['尊重删除决定', '404：未找到记忆', '文件被释放。档案只留下记录：有人选择不把缺席变成故事。'],
+    },
+    outcome: '档案结果 / 已本地保存', playAgain: '再玩一次', otherOutcomes: '查看其他结局', status: '档案状态', footer: '虚构个人档案 · 不会有数据离开此设备', newSession: '新的恢复会话已开始。',
+  },
+} as const
 
-const messages = [
-  { sender: 'MIRA_17', time: '17.06.2007', hidden: 'I was not lost.', revealed: 'I chose to disappear.' },
-  { sender: 'SYSTEM_NOTE', time: '18.06.2007', hidden: 'This was not an error.', revealed: 'The deletion request was signed.' },
-  { sender: 'LINK_CHECK', time: '18.06.2007', hidden: 'A private file remains.', revealed: 'It asks the archive to stop guessing.' },
-]
-
-const endings: Record<Ending, { label: string; title: string; text: string; tone: string }> = {
-  restore: {
-    label: 'RESTORE EVERYTHING',
-    title: 'THE PERFECT ARCHIVE',
-    text: 'The missing site returns complete and convincing. It also keeps a beautiful summer in Lisbon that no record can prove.',
-    tone: 'pink',
-  },
-  preserve: {
-    label: 'PRESERVE VERIFIED FRAGMENTS',
-    title: 'THE INCOMPLETE TRUTH',
-    text: 'The signed request and public fragments remain. The gaps stay visible, because the archive refuses to make them up.',
-    tone: 'mint',
-  },
-  release: {
-    label: 'RESPECT THE DELETION',
-    title: '404: MEMORY NOT FOUND',
-    text: 'The file is released. The archive records only that someone chose not to turn absence into a story.',
-    tone: 'paper',
-  },
-}
+const senders = ['MIRA_17', 'SYSTEM_NOTE', 'LINK_CHECK']
+const tones: Record<Ending, string> = { restore: 'pink', preserve: 'mint', release: 'paper' }
 
 function loadSession(): GameState {
   try {
@@ -53,210 +88,113 @@ function loadSession(): GameState {
     if (!saved) return initialGameState()
     const parsed = JSON.parse(saved) as Partial<GameState>
     const validChapters: Chapter[] = ['intro', 'photo', 'messages', 'versions', 'decision', 'ending']
-    if (!validChapters.includes(parsed.chapter as Chapter)) return initialGameState()
-    return { ...initialGameState(), ...parsed }
-  } catch {
-    return initialGameState()
-  }
+    return validChapters.includes(parsed.chapter as Chapter) ? { ...initialGameState(), ...parsed } : initialGameState()
+  } catch { return initialGameState() }
+}
+
+function loadLocale(): Locale {
+  return localStorage.getItem(LOCALE_KEY) === 'zh' ? 'zh' : 'en'
 }
 
 function App() {
   const [game, setGame] = useState<GameState>(loadSession)
+  const [locale, setLocale] = useState<Locale>(loadLocale)
   const [selectedTile, setSelectedTile] = useState<number | null>(null)
   const [notice, setNotice] = useState('')
+  const t = copy[locale]
+  const activeStep = ['photo', 'messages', 'versions', 'decision'].indexOf(game.chapter)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(game))
-  }, [game])
+  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(game)) }, [game])
+  useEffect(() => { localStorage.setItem(LOCALE_KEY, locale); document.documentElement.lang = locale === 'zh' ? 'zh-Hans' : 'en' }, [locale])
 
-  const activeStep = steps.findIndex((step) => step.chapter === game.chapter)
   const updateGame = (next: GameState) => setGame(next)
   const goTo = (chapter: Chapter) => updateGame({ ...game, chapter, pagesAccessed: recordPage(game.pagesAccessed, chapter) })
-
-  const restart = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    setSelectedTile(null)
-    setNotice('New recovery session started.')
-    setGame(initialGameState())
-  }
+  const restart = () => { localStorage.removeItem(STORAGE_KEY); setSelectedTile(null); setNotice(t.newSession); setGame(initialGameState()) }
+  const toggleLanguage = () => setLocale((current) => current === 'en' ? 'zh' : 'en')
 
   const selectTile = (position: number) => {
     if (game.photoSolved) return
-    if (selectedTile === null) {
-      setSelectedTile(position)
-      setNotice('Choose one more fragment to swap.')
-      return
-    }
-    if (selectedTile === position) {
-      setSelectedTile(null)
-      setNotice('Selection cleared.')
-      return
-    }
+    if (selectedTile === null) { setSelectedTile(position); setNotice(t.photoFirst); return }
+    if (selectedTile === position) { setSelectedTile(null); setNotice(t.photoClear); return }
     const photoTiles = swapItems(game.photoTiles, selectedTile, position)
     const photoSolved = isSolvedOrder(photoTiles)
     updateGame({ ...game, photoTiles, photoSolved, restorationAttempts: game.restorationAttempts + 1 })
-    setSelectedTile(null)
-    setNotice(photoSolved ? 'Image recovered. Open the messages.' : 'Fragments swapped. Keep looking for Mira’s face and the window edge.')
+    setSelectedTile(null); setNotice(photoSolved ? t.photoSolved : t.photoUnsolved)
   }
 
   const revealMessage = (index: number) => {
     if (game.openedClues.includes(index)) return
     const openedClues = [...game.openedClues, index]
     updateGame({ ...game, openedClues })
-    setNotice(hasAllMessageClues(openedClues) ? 'All messages recovered. Check the evidence.' : 'Message recovered. Two more remain.')
+    setNotice(hasAllMessageClues(openedClues) ? t.messagesDone : t.messagesOne)
   }
 
   const answer = (claim: 'request' | 'location', value: 'verified' | 'inferred') => {
-    updateGame({ ...game, evidenceAnswers: { ...game.evidenceAnswers, [claim]: value } })
-    setNotice('Choice recorded. Compare it with the source files.')
+    updateGame({ ...game, evidenceAnswers: { ...game.evidenceAnswers, [claim]: value } }); setNotice(t.evidenceChoice)
   }
 
   const checkEvidence = () => {
     const evidenceSolved = isEvidenceCorrect(game.evidenceAnswers)
-    updateGame({ ...game, evidenceSolved })
-    setNotice(evidenceSolved ? 'Evidence verified. You can now choose the archive outcome.' : 'Not quite. One claim is evidence; the other is an inference.')
+    updateGame({ ...game, evidenceSolved }); setNotice(evidenceSolved ? t.evidenceRight : t.evidenceWrong)
   }
 
-  const chooseEnding = (ending: Ending) => updateGame(finalizeChoice(game, ending))
+  return <main className="game-shell">
+    <div className="desktop-stars" aria-hidden="true"><i /><i /><i /><i /></div>
+    <header className="topbar">
+      <button className="wordmark" type="button" onClick={restart} aria-label="Restart 404 Memory Not Found"><span>404</span> MEMORY NOT FOUND</button>
+      <div className="progress" aria-label={locale === 'zh' ? '恢复进度' : 'Recovery progress'}>
+        {t.progress.map((label, index) => <div className={`progress-step ${index <= activeStep ? 'is-active' : ''}`} key={label}><span>0{index + 1}</span><small>{label}</small></div>)}
+      </div>
+      <div className="utility-actions"><button className="language-button" type="button" onClick={toggleLanguage} aria-label={t.languageLabel}>{t.language}</button><button className="text-button" type="button" onClick={restart}>{t.restart}</button></div>
+    </header>
 
-  return (
-    <main className="game-shell">
-      <header className="topbar">
-        <button className="wordmark" type="button" onClick={restart} aria-label="Restart 404 Memory Not Found">
-          <span>404</span> MEMORY NOT FOUND
-        </button>
-        <div className="progress" aria-label="Recovery progress">
-          {steps.map((step, index) => (
-            <div className={`progress-step ${index <= activeStep ? 'is-active' : ''}`} key={step.chapter}>
-              <span>{step.number}</span><small>{step.label}</small>
-            </div>
-          ))}
-        </div>
-        <button className="text-button" type="button" onClick={restart}>RESTART</button>
-      </header>
+    {game.chapter === 'intro' && <section className="screen intro-screen">
+      <div className="intro-copy">
+        <p className="eyebrow">{t.session}</p><h1>{t.introTitle}</h1><p className="lede">{t.intro}</p>
+        <div className="how-to"><span>{t.howTo}</span><p>{t.howToText}</p></div>
+        <button className="action-button" type="button" onClick={() => goTo('photo')}>{t.begin}<span>→</span></button>
+      </div>
+      <div className="lost-file" aria-hidden="true"><div className="file-tab"><i />{t.lastFound}<b>×</b></div><div className="portrait-wrap"><Portrait /></div><p>{t.preview}</p><strong>{t.damaged}</strong><em>CRC: 0x0E4</em></div>
+    </section>}
 
-      {game.chapter === 'intro' && (
-        <section className="screen intro-screen">
-          <div className="intro-copy">
-            <p className="eyebrow">RECOVERY SESSION / 2089</p>
-            <h1>Someone deleted<br />their memory.</h1>
-            <p className="lede">You found a damaged personal archive. Recover only what the files can actually tell you — then decide what should remain.</p>
-            <div className="how-to">
-              <span>HOW TO PLAY</span>
-              <p>Complete four small recovery tasks. Every screen tells you exactly what to do.</p>
-            </div>
-            <button className="action-button" type="button" onClick={() => goTo('photo')}>BEGIN RECOVERY <span>→</span></button>
-          </div>
-          <div className="lost-file" aria-hidden="true">
-            <div className="file-tab">MIRA_17 / LAST FOUND</div>
-            <div className="portrait-wrap"><Portrait /></div>
-            <p>image_preview.jpg</p>
-            <b>FILE DAMAGED</b>
-          </div>
-        </section>
-      )}
+    {game.chapter === 'photo' && <section className="screen task-screen">
+      <StepHeading number="01" title={t.tasks[0].title} instruction={t.tasks[0].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <div className="puzzle-window"><div className="window-title"><i />MIRA_17 / PHOTO_REPAIR.EXE <b>×</b></div><div className={`puzzle-board ${game.photoSolved ? 'is-solved' : ''}`} aria-label={locale === 'zh' ? '照片碎片拼图' : 'Photo fragment puzzle'}>
+        {game.photoTiles.map((tile, position) => <button className={`photo-piece ${selectedTile === position ? 'is-selected' : ''}`} type="button" onClick={() => selectTile(position)} key={`${tile}-${position}`} aria-label={`${locale === 'zh' ? '照片碎片' : 'Photo fragment'} ${position + 1}${selectedTile === position ? locale === 'zh' ? '，已选择' : ', selected' : ''}`} style={{ backgroundImage: `url(${portraitAsset})`, backgroundPosition: `${(tile % 3) * 50}% ${Math.floor(tile / 3) * 100}%` }} />)}
+      </div></div>
+      <StatusLine label={t.status} message={notice || t.photoDefault} />
+      {game.photoSolved && <button className="action-button" type="button" onClick={() => goTo('messages')}>{t.openMessages}<span>→</span></button>}
+    </section>}
 
-      {game.chapter === 'photo' && (
-        <section className="screen task-screen">
-          <StepHeading number="01" title="Rebuild the photograph" instruction="Click one fragment, then another, to swap their positions." />
-          <div className={`puzzle-board ${game.photoSolved ? 'is-solved' : ''}`} aria-label="Photo fragment puzzle">
-            {game.photoTiles.map((tile, position) => (
-              <button
-                className={`photo-piece ${selectedTile === position ? 'is-selected' : ''}`}
-                type="button"
-                onClick={() => selectTile(position)}
-                key={`${tile}-${position}`}
-                aria-label={`Photo fragment ${position + 1}${selectedTile === position ? ', selected' : ''}`}
-                style={{ backgroundImage: `url(${portraitAsset})`, backgroundPosition: `${(tile % 3) * 50}% ${Math.floor(tile / 3) * 100}%` }}
-              />
-            ))}
-          </div>
-          <StatusLine message={notice || 'Six fragments. One missing portrait.'} />
-          {game.photoSolved && <button className="action-button" type="button" onClick={() => goTo('messages')}>OPEN RECOVERED MESSAGES <span>→</span></button>}
-        </section>
-      )}
+    {game.chapter === 'messages' && <section className="screen task-screen">
+      <StepHeading number="02" title={t.tasks[1].title} instruction={t.tasks[1].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <div className="message-grid">{t.messages.map((message, index) => {
+        const opened = game.openedClues.includes(index)
+        return <button className={`message-card ${opened ? 'is-open' : ''}`} type="button" onClick={() => revealMessage(index)} key={senders[index]}><span>{senders[index]} <i>18.06.2007</i></span><strong>{opened ? message[1] : message[0]}</strong><em>{opened ? t.recovered : t.open}</em></button>
+      })}</div>
+      <StatusLine label={t.status} message={notice || `${game.openedClues.length}/3 ${t.messagesDefault}`} />
+      {hasAllMessageClues(game.openedClues) && <button className="action-button" type="button" onClick={() => goTo('versions')}>{locale === 'zh' ? '检查证据' : 'CHECK THE EVIDENCE'}<span>→</span></button>}
+    </section>}
 
-      {game.chapter === 'messages' && (
-        <section className="screen task-screen">
-          <StepHeading number="02" title="Open the hidden messages" instruction="Open every message. The recovered lines explain why the archive broke." />
-          <div className="message-grid">
-            {messages.map((message, index) => {
-              const opened = game.openedClues.includes(index)
-              return <button className={`message-card ${opened ? 'is-open' : ''}`} type="button" onClick={() => revealMessage(index)} key={message.sender}>
-                <span>{message.sender} <i>{message.time}</i></span>
-                <strong>{opened ? message.revealed : message.hidden}</strong>
-                <em>{opened ? 'RECOVERED' : 'CLICK TO OPEN'}</em>
-              </button>
-            })}
-          </div>
-          <StatusLine message={notice || `${game.openedClues.length}/3 messages opened`} />
-          {hasAllMessageClues(game.openedClues) && <button className="action-button" type="button" onClick={() => goTo('versions')}>CHECK THE EVIDENCE <span>→</span></button>}
-        </section>
-      )}
+    {game.chapter === 'versions' && <section className="screen task-screen evidence-screen">
+      <StepHeading number="03" title={t.tasks[2].title} instruction={t.tasks[2].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <div className="source-files"><article><span>FILE_01 / SIGNED_REQUEST.PDF</span><p>{t.sourceOne}</p><b>{t.primary}</b></article><article><span>FILE_02 / AUTO_RECONSTRUCTION.LOG</span><p>{t.sourceTwo}</p><b>{t.guess}</b></article></div>
+      <div className="claims"><Claim text={t.requestClaim} value={game.evidenceAnswers.request} onChoose={(value) => answer('request', value)} prove={t.prove} cannotProve={t.cannotProve} /><Claim text={t.locationClaim} value={game.evidenceAnswers.location} onChoose={(value) => answer('location', value)} prove={t.prove} cannotProve={t.cannotProve} /></div>
+      <button className="check-button" type="button" onClick={checkEvidence}>{t.check}</button><StatusLine label={t.status} message={notice || t.evidenceDefault} />
+      {game.evidenceSolved && <button className="action-button" type="button" onClick={() => goTo('decision')}>{t.finalChoice}<span>→</span></button>}
+    </section>}
 
-      {game.chapter === 'versions' && (
-        <section className="screen task-screen evidence-screen">
-          <StepHeading number="03" title="Separate fact from fiction" instruction="Use the two source files, then classify both claims." />
-          <div className="source-files">
-            <article><span>FILE_01 / SIGNED_REQUEST.PDF</span><p>18.06.2007 — “Please delete my profile and private records.”</p><b>PRIMARY SOURCE</b></article>
-            <article><span>FILE_02 / AUTO_RECONSTRUCTION.LOG</span><p>“Mira probably spent a summer in Lisbon.” No original source attached.</p><b>SYSTEM GUESS</b></article>
-          </div>
-          <div className="claims">
-            <Claim text="Mira asked for her private records to be deleted." value={game.evidenceAnswers.request} onChoose={(value) => answer('request', value)} />
-            <Claim text="Mira spent a summer in Lisbon." value={game.evidenceAnswers.location} onChoose={(value) => answer('location', value)} />
-          </div>
-          <button className="check-button" type="button" onClick={checkEvidence}>CHECK MY ANSWERS</button>
-          <StatusLine message={notice || 'A convincing story is not always evidence.'} />
-          {game.evidenceSolved && <button className="action-button" type="button" onClick={() => goTo('decision')}>MAKE THE FINAL CHOICE <span>→</span></button>}
-        </section>
-      )}
+    {game.chapter === 'decision' && <section className="screen task-screen decision-screen"><StepHeading number="04" title={t.tasks[3].title} instruction={t.tasks[3].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} /><div className="choice-grid">{(Object.keys(tones) as Ending[]).map((ending, index) => <Choice key={ending} ending={ending} number={`0${index + 1}`} entry={t.endings[ending]} onChoose={(choice) => updateGame(finalizeChoice(game, choice))} choose={locale === 'zh' ? '选择' : 'CHOOSE'} />)}</div></section>}
 
-      {game.chapter === 'decision' && (
-        <section className="screen task-screen decision-screen">
-          <StepHeading number="04" title="Choose what the archive becomes" instruction="There is no correct ending. Pick the responsibility you want the archive to take." />
-          <div className="choice-grid">
-            {(Object.keys(endings) as Ending[]).map((ending) => <Choice key={ending} ending={ending} onChoose={chooseEnding} />)}
-          </div>
-        </section>
-      )}
-
-      {game.chapter === 'ending' && game.ending && (
-        <section className={`screen ending-screen ending-${endings[game.ending].tone}`}>
-          <p className="eyebrow">ARCHIVE OUTCOME / SAVED LOCALLY</p>
-          <div className="ending-mark">{game.ending === 'release' ? '404' : '✓'}</div>
-          <h1>{endings[game.ending].title}</h1>
-          <p className="lede">{endings[game.ending].text}</p>
-          <div className="ending-actions">
-            <button className="action-button" type="button" onClick={restart}>PLAY AGAIN <span>↺</span></button>
-            <button className="text-button" type="button" onClick={() => goTo('decision')}>SEE OTHER OUTCOMES</button>
-          </div>
-        </section>
-      )}
-
-      <footer>FICTIONAL PERSONAL ARCHIVE · NO DATA LEAVES THIS DEVICE</footer>
-    </main>
-  )
+    {game.chapter === 'ending' && game.ending && <section className={`screen ending-screen ending-${tones[game.ending]}`}><p className="eyebrow">{t.outcome}</p><div className="ending-mark">{game.ending === 'release' ? '404' : '✓'}</div><h1>{t.endings[game.ending][1]}</h1><p className="lede">{t.endings[game.ending][2]}</p><div className="ending-actions"><button className="action-button" type="button" onClick={restart}>{t.playAgain}<span>↺</span></button><button className="text-button" type="button" onClick={() => goTo('decision')}>{t.otherOutcomes}</button></div></section>}
+    <footer>{t.footer}</footer>
+  </main>
 }
 
-function StepHeading({ number, title, instruction }: { number: string; title: string; instruction: string }) {
-  return <div className="step-heading"><p className="eyebrow">TASK {number} / 04</p><h1>{title}</h1><p className="lede">{instruction}</p></div>
-}
-
-function StatusLine({ message }: { message: string }) {
-  return <p className="status-line" role="status"><span>ARCHIVE STATUS</span>{message}</p>
-}
-
-function Claim({ text, value, onChoose }: { text: string; value?: string; onChoose: (value: 'verified' | 'inferred') => void }) {
-  return <article className="claim"><p>{text}</p><div><button className={value === 'verified' ? 'selected' : ''} type="button" onClick={() => onChoose('verified')}>CAN PROVE</button><button className={value === 'inferred' ? 'selected' : ''} type="button" onClick={() => onChoose('inferred')}>CANNOT PROVE</button></div></article>
-}
-
-function Choice({ ending, onChoose }: { ending: Ending; onChoose: (ending: Ending) => void }) {
-  const entry = endings[ending]
-  return <button className={`choice-card choice-${entry.tone}`} type="button" onClick={() => onChoose(ending)}><span>{ending === 'restore' ? '01' : ending === 'preserve' ? '02' : '03'}</span><strong>{entry.label}</strong><p>{entry.text}</p><em>CHOOSE →</em></button>
-}
-
-function Portrait() {
-  return <svg viewBox="0 0 300 360" role="img" aria-label="A fragmented portrait preview"><rect width="300" height="360" fill="#283344" /><circle cx="150" cy="146" r="72" fill="#74899e" /><path d="M73 319c10-93 46-132 77-132s67 39 77 132" fill="#9adacb" /><path d="M82 148c0-66 30-102 70-102s69 34 69 102c-18-22-39-32-70-32s-51 10-69 32Z" fill="#10151f" /><circle cx="124" cy="148" r="5" fill="#10151f" /><circle cx="176" cy="148" r="5" fill="#10151f" /><path d="M130 180c12 9 28 9 40 0" fill="none" stroke="#10151f" strokeWidth="5" /><path d="M0 62h300M0 250h300" stroke="#d88da6" strokeDasharray="8 11" strokeWidth="3" opacity=".8" /></svg>
-}
+function StepHeading({ number, title, instruction, taskLabel }: { number: string; title: string; instruction: string; taskLabel: string }) { return <div className="step-heading"><p className="eyebrow">{taskLabel} {number} / 04</p><h1>{title}</h1><p className="lede">{instruction}</p></div> }
+function StatusLine({ label, message }: { label: string; message: string }) { return <p className="status-line" role="status"><span>{label}</span>{message}</p> }
+function Claim({ text, value, onChoose, prove, cannotProve }: { text: string; value?: string; onChoose: (value: 'verified' | 'inferred') => void; prove: string; cannotProve: string }) { return <article className="claim"><p>{text}</p><div><button className={value === 'verified' ? 'selected' : ''} type="button" onClick={() => onChoose('verified')}>{prove}</button><button className={value === 'inferred' ? 'selected' : ''} type="button" onClick={() => onChoose('inferred')}>{cannotProve}</button></div></article> }
+function Choice({ ending, number, entry, onChoose, choose }: { ending: Ending; number: string; entry: readonly [string, string, string]; onChoose: (ending: Ending) => void; choose: string }) { return <button className={`choice-card choice-${tones[ending]}`} type="button" onClick={() => onChoose(ending)}><span>{number}</span><strong>{entry[0]}</strong><p>{entry[2]}</p><em>{choose} →</em></button> }
+function Portrait() { return <svg viewBox="0 0 300 360" role="img" aria-label="A fragmented portrait preview"><rect width="300" height="360" fill="#283344" /><circle cx="150" cy="146" r="72" fill="#74899e" /><path d="M73 319c10-93 46-132 77-132s67 39 77 132" fill="#9adacb" /><path d="M82 148c0-66 30-102 70-102s69 34 69 102c-18-22-39-32-70-32s-51 10-69 32Z" fill="#10151f" /><circle cx="124" cy="148" r="5" fill="#10151f" /><circle cx="176" cy="148" r="5" fill="#10151f" /><path d="M130 180c12 9 28 9 40 0" fill="none" stroke="#10151f" strokeWidth="5" /><path d="M0 62h300M0 250h300" stroke="#d88da6" strokeDasharray="8 11" strokeWidth="3" opacity=".8" /></svg> }
 
 export default App
