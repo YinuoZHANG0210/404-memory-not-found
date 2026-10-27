@@ -260,7 +260,7 @@ function App() {
       {game.photoSolved && <button className="action-button" type="button" onClick={() => goTo('messages')}>{t.openMessages}<span>→</span></button>}
     </section>}
 
-    {game.chapter === 'messages' && <section className="screen task-screen">
+    {game.chapter === 'messages' && <section className="screen task-screen messages-screen">
       <StepHeading number="02" title={t.tasks[1].title} instruction={t.tasks[1].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
       <section className="slingshot-console" aria-label={t.slingshot.label}>
         <div className="console-title"><span>▣</span>{t.slingshot.label}<b>×</b></div>
