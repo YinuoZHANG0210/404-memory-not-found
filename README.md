@@ -2,17 +2,23 @@
 
 **An Interactive Web Mystery About Remembering and Forgetting**
 
-A browser-based narrative puzzle set in 2089. As a digital archivist, you enter Mira's damaged personal website, recover fragments, compare conflicting records, and decide what should remain. The archive also keeps a small fictional record of your choices.
+A browser-based narrative puzzle set in 2089. Mira asked for her private archive to disappear, but a damaged system retained traces. As a digital archivist, you recover fragments, separate a signed request from an attractive system guess, and decide what should remain. The archive keeps only a small fictional record of your choices in this browser.
+
+**Intended user:** someone who enjoys short narrative games, digital nostalgia, and a light puzzle with an ethical choice. A first playthrough takes about five to eight minutes.
 
 ## Play
 
 1. Start a recovery session from the opening file.
 2. Reassemble Mira's six-piece photograph by clicking two pieces to swap them.
-3. In the monochrome pixel slingshot game, select a floating word, freely aim the sling with the pointer (or use ↑/↓ to fine-tune), hold <kbd>Space</kbd> to charge, then release to fire. The projectile must cross the correct blank to score. A press-and-hold **Fire** button provides the touch alternative. Recover all three transmissions.
+3. In the monochrome pixel slingshot game, follow the visible three-step strip: select a floating word, freely aim the sling at its matching blank with the pointer (or use ↑/↓ to fine-tune), then hold <kbd>Space</kbd> to charge and release to fire. The projectile must cross the correct blank to score. A press-and-hold **Fire** button provides the touch alternative. Recover all three transmissions.
 4. Read the two source files and classify each claim as something the archive can or cannot prove.
 5. Choose whether to restore everything, preserve verified fragments, or respect the deletion.
 
-Every stage is contained in one fixed game viewport, with no page-level vertical scrolling. Each has one short instruction, visible progress, an accessible button action, and a response line explaining what happened. Use the **EN / 中文** control in the top-right corner to switch the complete game interface between English and Simplified Chinese; the preference is saved locally. **Restart** always begins a clean run.
+Every stage is contained in one fixed game viewport, with no page-level vertical scrolling. Each has a short action instruction, an **Archive Note** that explains its place in Mira's story, visible progress, an accessible button action, and a response line explaining what happened. Use the **EN / 中文** control in the top-right corner to switch the complete game interface between English and Simplified Chinese; the preference is saved locally. **Restart** always begins a clean run.
+
+**Live version:** <https://yinuozhang0210.github.io/404-memory-not-found/>
+
+![The opening recovery session in the archive interface](public/intro-screenshot.png)
 
 The visitor record is fictional game state stored in this browser's local storage. No analytics, identity data, or activity is sent to a server.
 
@@ -23,7 +29,7 @@ The site is presented as a damaged personal archive rather than a dashboard. A b
 ## Technology
 
 - React 18 and TypeScript
-- Vite 5
+- Vite 6
 - CSS; no game engine, backend, external API, or runtime UI dependency
 - A custom SVG portrait and click-to-swap interaction
 
@@ -85,20 +91,20 @@ src/
 
 ## Known limitations
 
-- Narrative prose is in English.
+- The interface and narrative guidance are available in English and Simplified Chinese; the file names remain deliberately archival/English.
 - Progress is saved per browser on the current device and is not synchronized.
 - The story and evidence are deliberately compact; the intended first playthrough is a short-form experience.
 
 ## Assignment submission check
 
 - [x] A complete input → response → feedback loop across four short tasks and an ending
-- [x] A relevant mistake state: incorrect evidence classifications and incomplete image recovery receive recoverable feedback
+- [x] Relevant mistake states: incomplete image recovery, an unloaded/undercharged/missed slingshot shot, and incorrect evidence classifications receive recoverable feedback
 - [x] Keyboard and touch-accessible button interactions with visible focus and reduced-motion support
 - [x] Original in-repository visual asset and credits below
 - [x] `README.md`, `DESIGN_RATIONALE.md`, tests, and documented setup
 - [ ] Add one actual screenshot or short screen recording before submission
-- [ ] Complete the real-person trial section in `PROCESS.md`
-- [ ] Push to a public GitHub repository and verify its link while signed out
+- [x] Complete an anonymised real-person trial and document the resulting change in `PROCESS.md`
+- [x] Push to the public GitHub repository and verify the GitHub Pages link
 
 ## Credits
 

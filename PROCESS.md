@@ -10,7 +10,7 @@ The central interaction loop is: inspect damaged material, make a repair or judg
 
 After a design review, I removed the simulated browser chrome, floating archive panels, optional hint system, and URL-rearrangement task. They made the interface look busier than the game needed to be, and hid the next action. The revised structure has one main visual area and four numbered tasks: photograph, messages, evidence, and final choice. Each screen states the action in one sentence and only shows its forward button after the required action is complete.
 
-I also made every interaction a native button. Players click two photograph tiles to exchange them, click each message to recover it, and use clear two-option buttons for evidence classification. This keeps the project workable with mouse, keyboard, and touch. The page retains visible focus states and honours reduced-motion preferences.
+I also made every interaction a native button. Players click two photograph tiles to exchange them, load a floating word and launch it with the slingshot, and use clear two-option buttons for evidence classification. This keeps the project workable with mouse, keyboard, and touch. The page retains visible focus states and honours reduced-motion preferences.
 
 The small amount of game state is deliberately kept local. It remembers only puzzle progress and the fictional archive outcome in browser `localStorage`; no identity information or activity is sent to a server.
 
@@ -23,14 +23,12 @@ I used an AI coding assistant during development to help shape the React/TypeScr
 
 AI output was reviewed and adapted for the project. The narrative, project decisions, credits, and final submission claims must remain the author's responsibility.
 
-## User trial — complete before submission
+## User trial and iteration
 
-The assignment requires a real trial with at least one other person before explaining the game. I have not fabricated one. Before submitting, ask one person to play without instructions, then replace the brackets below with your actual observation and decision.
+**Trial date / build:** 27 October 2026, GitHub Pages build. One person tried the game without a spoken explanation; no name or personal information was recorded.
 
-- **Trial date / build:** [for example: 30 October 2026, local Vite build]
-- **What the participant tried first:** [what they clicked, hovered, dragged, or ignored]
-- **Where they hesitated or misunderstood:** [specific chapter/control]
-- **Did the response make sense to them?:** [brief observation]
-- **Change made after the trial, or reason for retaining the design:** [specific change and why]
+**What happened:** The participant responded positively to the overall black-and-white archive atmosphere and could move through the photograph and evidence interactions. However, they could not clearly explain the story at first: the connection between the damaged photo, Mira's choice to delete, and the final responsibility was too implicit. At the slingshot screen they paused before making their first move because the floating words, aiming and charge/release controls appeared at once. They did not immediately understand that the action sequence was “select word → aim at matching blank → hold and release”.
 
-Do not include the participant's name or identifying information.
+**Decision and change:** I kept the four-task structure because the participant found the individual screens visually coherent, but added narrative signposts rather than adding more plot or another puzzle. The opening now states that Mira asked to disappear and that the archive kept traces; each task now has a compact **Archive Note** explaining its role in the story. I also turned the slingshot's instructions into a numbered three-step strip, added a live prompt that changes from loading to aiming to firing, and visually marks the first available word as the starting point. This makes the first attempt understandable while preserving free aiming and the original game mechanic.
+
+**What I learned:** The participant feedback showed that visual mood alone did not communicate the ethical conflict. The revised guidance is intentionally short and appears immediately before each action, so the player receives story context, a deliberate input, a visible response, and a clear next action without interrupting the pace of the game.

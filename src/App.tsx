@@ -22,14 +22,14 @@ const copy = {
     progress: ['IMAGE', 'MESSAGES', 'EVIDENCE', 'CHOICE'],
     restart: 'RESTART', language: '中文', languageLabel: '切换为中文',
     session: 'RECOVERY SESSION / 2089', introTitle: <>Someone deleted<br />their memory.</>,
-    intro: 'You found a damaged personal archive. Recover only what the files can actually tell you — then decide what should remain.',
+    intro: 'Mira asked for her private archive to disappear. A broken system kept traces anyway. Recover only what the files can truly prove, then decide whether her request should be honoured.',
     howTo: 'HOW TO PLAY', howToText: 'Complete four small recovery tasks. Every screen tells you exactly what to do.', begin: 'BEGIN RECOVERY',
     lastFound: 'MIRA_17 / LAST FOUND', preview: 'image_preview.jpg', damaged: 'FILE DAMAGED',
     tasks: [
-      { title: 'Rebuild the photograph', instruction: 'Click one fragment, then another, to swap their positions.' },
-      { title: 'Open the hidden messages', instruction: 'Open every message. The recovered lines explain why the archive broke.' },
-      { title: 'Separate fact from fiction', instruction: 'Use the two source files, then classify both claims.' },
-      { title: 'Choose what the archive becomes', instruction: 'There is no correct ending. Pick the responsibility you want the archive to take.' },
+      { title: 'Rebuild the photograph', instruction: 'Click one fragment, then another, to swap their positions.', story: 'FIRST TRACE — The photo proves Mira existed in this archive. It does not yet say whether she wanted to remain.' },
+      { title: 'Open the hidden messages', instruction: 'Recover every line to learn why this archive was damaged.', story: 'MIRA\'S TRACE — Three messages survive above the console. They explain why the deletion was not a system accident.' },
+      { title: 'Separate fact from fiction', instruction: 'Use the two source files, then classify both claims.', story: 'THE CONFLICT — A signed request carries evidence. An automatic reconstruction can sound plausible without being true.' },
+      { title: 'Choose what the archive becomes', instruction: 'There is no correct ending. Pick the responsibility you want the archive to take.', story: 'WHAT YOU NOW KNOW — Mira signed a deletion request; the Lisbon story is only a guess. Choose what the archive does with that gap.' },
     ],
     messages: [
       ['I was not lost.', 'I chose to disappear.'],
@@ -38,8 +38,9 @@ const copy = {
     ],
     slingshot: {
       label: 'SIGNAL SLINGSHOT / LOAD THE MISSING WORD',
-      intro: 'Words drift above the console. Load one, freely aim the sling with your pointer, then hold SPACE to charge and release to fire.',
+      intro: 'This is a three-step mini-game: load a word, aim at its matching blank, then hold and release to fire.',
       choose: '1. LOAD A WORD', aim: '2. FREE AIM', loaded: 'LOADED', controls: 'MOVE POINTER TO AIM  ·  ↑ ↓ FINE TUNE  ·  HOLD SPACE TO CHARGE  ·  RELEASE TO FIRE', power: 'POWER', fire: 'HOLD TO FIRE', chargeTooLow: 'Not enough power — hold SPACE a little longer.',
+      tutorialLabel: 'HOW THIS CONSOLE WORKS', tutorial: ['Click a floating word to load it.', 'Move the pointer until the matching blank is highlighted.', 'Hold Space or FIRE, then release to launch.'], guideLoad: 'START HERE: click any floating word above to load the sling.', guideAim: 'NEXT: aim the dotted path at the blank with the same missing word.', guideFire: 'READY: hold SPACE or FIRE until the power bar fills, then release.',
       words: ['DISAPPEAR', 'SIGNED', 'GUESSING'],
       prompts: ['I chose to', 'The deletion request was', 'Stop'],
       slot: '_____ ', noWord: 'Load a word cartridge first.', miss: 'SIGNAL MISSED — try another blank.', hit: 'LOCK ACQUIRED.',
@@ -61,14 +62,14 @@ const copy = {
     progress: ['照片', '留言', '证据', '选择'],
     restart: '重新开始', language: 'EN', languageLabel: 'Switch to English',
     session: '恢复会话 / 2089', introTitle: <>有人删除了<br />自己的记忆。</>,
-    intro: '你找到了一份受损的个人档案。恢复文件真正能告诉你的内容，再决定什么应当被留下。',
+    intro: 'Mira 曾要求让她的私人档案消失，但故障系统仍留下痕迹。只恢复文件真正能证明的内容，再决定是否应尊重她的请求。',
     howTo: '怎么玩', howToText: '完成四个小型恢复任务。每一页都会告诉你下一步该做什么。', begin: '开始恢复',
     lastFound: 'MIRA_17 / 最后发现', preview: '照片预览.jpg', damaged: '文件已损坏',
     tasks: [
-      { title: '重建照片', instruction: '先点击一块碎片，再点击另一块，即可交换位置。' },
-      { title: '打开隐藏留言', instruction: '打开全部留言。恢复的文字会解释档案为何破损。' },
-      { title: '区分事实与推测', instruction: '阅读两份来源文件，再为两条说法分类。' },
-      { title: '选择档案的结局', instruction: '没有正确结局。请选择你希望档案承担的责任。' },
+      { title: '重建照片', instruction: '先点击一块碎片，再点击另一块，即可交换位置。', story: '第一条痕迹 — 照片证明 Mira 曾在这份档案中，但还不能说明她希望被保留。' },
+      { title: '打开隐藏留言', instruction: '恢复全部文字，了解档案为什么会破损。', story: 'MIRA 的痕迹 — 控制台上方留下三条留言。它们会说明删除并不是系统意外。' },
+      { title: '区分事实与推测', instruction: '阅读两份来源文件，再为两条说法分类。', story: '冲突点 — 经签署的请求是证据；自动重建即使听起来合理，也未必是真的。' },
+      { title: '选择档案的结局', instruction: '没有正确结局。请选择你希望档案承担的责任。', story: '你已经知道 — Mira 签署了删除请求；里斯本的故事只是一种猜测。现在决定档案如何对待这段空白。' },
     ],
     messages: [
       ['我不是迷失了。', '是我选择了消失。'],
@@ -77,8 +78,9 @@ const copy = {
     ],
     slingshot: {
       label: '信号弹弓 / 装载缺失文字',
-      intro: '文字会漂浮在控制台上方。装载一个文字，用鼠标自由瞄准弹弓，长按空格蓄力，松开发射。',
+      intro: '这是一个三步小游戏：装载文字，瞄准对应空位，再按住并松开发射。',
       choose: '1. 装载文字', aim: '2. 自由瞄准', loaded: '已装载', controls: '移动鼠标瞄准 · ↑ ↓ 微调 · 长按空格蓄力 · 松开发射', power: '力量', fire: '按住发射', chargeTooLow: '力量不足 — 再多按住空格一会儿。',
+      tutorialLabel: '控制台怎么玩', tutorial: ['点击上方漂浮的文字来装弹。', '移动鼠标，让虚线路径对准匹配的空位。', '长按空格或“按住发射”，再松开。'], guideLoad: '从这里开始：点击上方任意漂浮文字，为弹弓装弹。', guideAim: '下一步：瞄准带有相同缺失文字的空位。', guideFire: '准备好了：按住空格或“按住发射”，等力量条填满后松开。',
       words: ['消失', '签署', '猜测'],
       prompts: ['我选择了', '删除请求已被', '请停止'],
       slot: '_____', noWord: '请先装载一个文字弹药。', miss: '信号偏离 — 换一个空位试试。', hit: '目标锁定。',
@@ -129,6 +131,8 @@ function App() {
   const targetRefs = useRef<Array<HTMLButtonElement | null>>([])
   const t = copy[locale]
   const activeStep = ['photo', 'messages', 'versions', 'decision'].indexOf(game.chapter)
+  const nextWord = [0, 1, 2].find((index) => !game.openedClues.includes(index)) ?? 0
+  const slingshotGuide = selectedWord === null ? t.slingshot.guideLoad : isCharging ? t.slingshot.guideFire : t.slingshot.guideAim
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(game)) }, [game])
   useEffect(() => { localStorage.setItem(LOCALE_KEY, locale); document.documentElement.lang = locale === 'zh' ? 'zh-Hans' : 'en' }, [locale])
@@ -252,7 +256,7 @@ function App() {
     </section>}
 
     {game.chapter === 'photo' && <section className="screen task-screen">
-      <StepHeading number="01" title={t.tasks[0].title} instruction={t.tasks[0].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <StepHeading number="01" title={t.tasks[0].title} instruction={t.tasks[0].instruction} story={t.tasks[0].story} taskLabel={locale === 'zh' ? '任务' : 'TASK'} storyLabel={locale === 'zh' ? '档案提示' : 'ARCHIVE NOTE'} />
       <div className="puzzle-window"><div className="window-title"><i />MIRA_17 / PHOTO_REPAIR.EXE <b>×</b></div><div className={`puzzle-board ${game.photoSolved ? 'is-solved' : ''}`} aria-label={locale === 'zh' ? '照片碎片拼图' : 'Photo fragment puzzle'}>
         {game.photoTiles.map((tile, position) => <button className={`photo-piece ${selectedTile === position ? 'is-selected' : ''}`} type="button" onClick={() => selectTile(position)} key={`${tile}-${position}`} aria-label={`${locale === 'zh' ? '照片碎片' : 'Photo fragment'} ${position + 1}${selectedTile === position ? locale === 'zh' ? '，已选择' : ', selected' : ''}`} style={{ backgroundImage: `url(${portraitAsset})`, backgroundPosition: `${(tile % 3) * 50}% ${Math.floor(tile / 3) * 100}%` }} />)}
       </div></div>
@@ -261,12 +265,14 @@ function App() {
     </section>}
 
     {game.chapter === 'messages' && <section className="screen task-screen messages-screen">
-      <StepHeading number="02" title={t.tasks[1].title} instruction={t.tasks[1].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <StepHeading number="02" title={t.tasks[1].title} instruction={t.tasks[1].instruction} story={t.tasks[1].story} taskLabel={locale === 'zh' ? '任务' : 'TASK'} storyLabel={locale === 'zh' ? '档案提示' : 'ARCHIVE NOTE'} />
       <section className="slingshot-console" aria-label={t.slingshot.label}>
         <div className="console-title"><span>▣</span>{t.slingshot.label}<b>×</b></div>
         <p className="slingshot-intro">{t.slingshot.intro}</p>
-        <div className="slingshot-playfield" onPointerMove={(event) => aimFromPointer(event.clientX, event.clientY)}>
-          <div className="sky-words"><p className="mini-label">{t.slingshot.choose}</p>{t.slingshot.words.map((word, index) => <button className={`word-cartridge sky-word word-${index} ${selectedWord === index ? 'is-selected' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div>
+        <ol className="slingshot-tutorial" aria-label={t.slingshot.tutorialLabel}>{t.slingshot.tutorial.map((step, index) => <li key={step}><b>0{index + 1}</b><span>{step}</span></li>)}</ol>
+        <p className="slingshot-guide" id="slingshot-guide" role="status"><b>▶</b>{slingshotGuide}</p>
+        <div className="slingshot-playfield" aria-describedby="slingshot-guide" onPointerMove={(event) => aimFromPointer(event.clientX, event.clientY)}>
+          <div className="sky-words"><p className="mini-label">{t.slingshot.choose}</p>{t.slingshot.words.map((word, index) => <button className={`word-cartridge sky-word word-${index} ${selectedWord === index ? 'is-selected' : ''} ${selectedWord === null && index === nextWord ? 'is-suggested' : ''} ${game.openedClues.includes(index) ? 'is-used' : ''}`} type="button" draggable={!game.openedClues.includes(index)} onDragStart={() => setSelectedWord(index)} onClick={() => !game.openedClues.includes(index) && setSelectedWord(index)} key={word} disabled={game.openedClues.includes(index)}>{word}</button>)}</div>
           <div className="slingshot-floor">
             <div className="launch-control"><div className="launcher" ref={launcherRef} aria-hidden="true" style={{ '--aim-angle': `${aimAngle}deg` } as CSSProperties}><i className="launcher-arm left" /><i className="launcher-arm right" /><span className={selectedWord === null ? '' : 'is-loaded'}>{selectedWord === null ? '●' : t.slingshot.words[selectedWord]}</span><em>⌁⌁⌁</em></div><div className="power-meter"><span>{t.slingshot.power}</span><i><b style={{ width: `${charge}%` }} /></i></div><button className={`fire-button ${isCharging ? 'is-charging' : ''}`} type="button" onPointerDown={startCharge} onPointerUp={fireWord} onPointerCancel={fireWord} onPointerLeave={fireWord}>{t.slingshot.fire}</button></div>
             <div className="trajectory" aria-hidden="true" style={{ '--aim-angle': `${aimAngle}deg` } as CSSProperties}><i /><i /><i /><i /></div>
@@ -285,7 +291,7 @@ function App() {
     </section>}
 
     {game.chapter === 'versions' && <section className="screen task-screen evidence-screen">
-      <StepHeading number="03" title={t.tasks[2].title} instruction={t.tasks[2].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} />
+      <StepHeading number="03" title={t.tasks[2].title} instruction={t.tasks[2].instruction} story={t.tasks[2].story} taskLabel={locale === 'zh' ? '任务' : 'TASK'} storyLabel={locale === 'zh' ? '档案提示' : 'ARCHIVE NOTE'} />
       <div className="source-files"><article className="source-file source-file--primary"><FileGlyph kind="primary" /><span>FILE_01 / SIGNED_REQUEST.PDF</span><p>{t.sourceOne}</p><b>{t.primary}</b></article><article className="source-file source-file--guess"><FileGlyph kind="guess" /><span>FILE_02 / AUTO_RECONSTRUCTION.LOG</span><p>{t.sourceTwo}</p><b>{t.guess}</b></article></div>
       <div className="evidence-key" aria-hidden="true"><span>ORIGINAL</span><i><b /></i><span>INFERENCE</span></div>
       <div className="claims"><Claim text={t.requestClaim} value={game.evidenceAnswers.request} onChoose={(value) => answer('request', value)} prove={t.prove} cannotProve={t.cannotProve} /><Claim text={t.locationClaim} value={game.evidenceAnswers.location} onChoose={(value) => answer('location', value)} prove={t.prove} cannotProve={t.cannotProve} /></div>
@@ -293,14 +299,14 @@ function App() {
       {game.evidenceSolved && <button className="action-button" type="button" onClick={() => goTo('decision')}>{t.finalChoice}<span>→</span></button>}
     </section>}
 
-    {game.chapter === 'decision' && <section className="screen task-screen decision-screen"><StepHeading number="04" title={t.tasks[3].title} instruction={t.tasks[3].instruction} taskLabel={locale === 'zh' ? '任务' : 'TASK'} /><div className="choice-grid">{(Object.keys(tones) as Ending[]).map((ending, index) => <Choice key={ending} ending={ending} number={`0${index + 1}`} entry={t.endings[ending]} onChoose={(choice) => updateGame(finalizeChoice(game, choice))} choose={locale === 'zh' ? '选择' : 'CHOOSE'} />)}</div></section>}
+    {game.chapter === 'decision' && <section className="screen task-screen decision-screen"><StepHeading number="04" title={t.tasks[3].title} instruction={t.tasks[3].instruction} story={t.tasks[3].story} taskLabel={locale === 'zh' ? '任务' : 'TASK'} storyLabel={locale === 'zh' ? '档案提示' : 'ARCHIVE NOTE'} /><div className="choice-grid">{(Object.keys(tones) as Ending[]).map((ending, index) => <Choice key={ending} ending={ending} number={`0${index + 1}`} entry={t.endings[ending]} onChoose={(choice) => updateGame(finalizeChoice(game, choice))} choose={locale === 'zh' ? '选择' : 'CHOOSE'} />)}</div></section>}
 
     {game.chapter === 'ending' && game.ending && <section className={`screen ending-screen ending-${tones[game.ending]}`}><p className="eyebrow">{t.outcome}</p><div className="ending-mark">{game.ending === 'release' ? '404' : '✓'}</div><h1>{t.endings[game.ending][1]}</h1><p className="lede">{t.endings[game.ending][2]}</p><div className="ending-actions"><button className="action-button" type="button" onClick={restart}>{t.playAgain}<span>↺</span></button><button className="text-button" type="button" onClick={() => goTo('decision')}>{t.otherOutcomes}</button></div></section>}
     <footer>{t.footer}</footer>
   </main>
 }
 
-function StepHeading({ number, title, instruction, taskLabel }: { number: string; title: string; instruction: string; taskLabel: string }) { return <div className="step-heading"><p className="eyebrow">{taskLabel} {number} / 04</p><h1>{title}</h1><p className="lede">{instruction}</p></div> }
+function StepHeading({ number, title, instruction, story, taskLabel, storyLabel }: { number: string; title: string; instruction: string; story: string; taskLabel: string; storyLabel: string }) { return <div className="step-heading"><p className="eyebrow">{taskLabel} {number} / 04</p><h1>{title}</h1><p className="lede">{instruction}</p><p className="story-cue"><b>{storyLabel}</b>{story}</p></div> }
 function StatusLine({ label, message }: { label: string; message: string }) { return <p className="status-line" role="status"><span>{label}</span>{message}</p> }
 function Claim({ text, value, onChoose, prove, cannotProve }: { text: string; value?: string; onChoose: (value: 'verified' | 'inferred') => void; prove: string; cannotProve: string }) { return <article className="claim"><p>{text}</p><div><button className={value === 'verified' ? 'selected' : ''} type="button" onClick={() => onChoose('verified')}>{prove}</button><button className={value === 'inferred' ? 'selected' : ''} type="button" onClick={() => onChoose('inferred')}>{cannotProve}</button></div></article> }
 function FileGlyph({ kind }: { kind: 'primary' | 'guess' }) { return <div className={`file-glyph file-glyph--${kind}`} aria-hidden="true"><i /><i /><i /><b>{kind === 'primary' ? '01' : '??'}</b></div> }
