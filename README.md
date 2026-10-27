@@ -54,19 +54,6 @@ npm run preview
 
 `npm run build` performs the TypeScript project checks before creating the static site in `dist/`.
 
-## Static deployment
-
-Deploy the contents of `dist/` to any static host (for example GitHub Pages, Netlify, or Cloudflare Pages). Build with `npm run build`; set the publish directory to `dist`. The game uses in-page chapter state rather than client-side URL routes, so it does not need a host-side SPA fallback. The public portrait is a same-origin SVG asset.
-
-### GitHub Pages
-
-1. Create a **public** GitHub repository in your own account and push this project to its `main` branch.
-2. Run `npm run build` locally.
-3. This repository includes a GitHub Actions Pages workflow. In GitHub, open **Settings → Pages** and choose **GitHub Actions** as the source; pushes to `main` build and publish `dist/` automatically.
-4. Open the resulting link in a signed-out/private browser window before submitting the repository URL to Canvas.
-
-The assignment asks for the public repository URL, not a deployment URL. A live link is an optional addition to the README.
-
 ## Project structure
 
 ```text
@@ -95,19 +82,6 @@ src/
 - Progress is saved per browser on the current device and is not synchronized.
 - The story and evidence are deliberately compact; the intended first playthrough is a short-form experience.
 
-## Assignment submission check
-
-- [x] A complete input → response → feedback loop across four short tasks and an ending
-- [x] Relevant mistake states: incomplete image recovery, an unloaded/undercharged/missed slingshot shot, and incorrect evidence classifications receive recoverable feedback
-- [x] Keyboard and touch-accessible button interactions with visible focus and reduced-motion support
-- [x] Original in-repository visual asset and credits below
-- [x] `README.md`, `DESIGN_RATIONALE.md`, tests, and documented setup
-- [ ] Add one actual screenshot or short screen recording before submission
-- [x] Complete an anonymised real-person trial and document the resulting change in `PROCESS.md`
-- [x] Push to the public GitHub repository and verify the GitHub Pages link
-
 ## Credits
 
-- **Original work:** Interface, story, CSS, React/TypeScript implementation, and `public/mira-portrait.svg` were created for this project.
-- **Course-material relationship:** This is an original narrative experience; it does not reuse a course example or a previous visualisation.
-- **AI disclosure:** See `PROCESS.md` for a precise record of how AI assistance was used during development.
+This project was independently created by **Yinuo Zhang**, including its concept, story, interaction design, visual system, React/TypeScript implementation, and original portrait asset. AI assistance is disclosed in `PROCESS.md`.

@@ -148,3 +148,9 @@ footer { padding-top: 8px; }
 .messages-screen .slingshot-playfield { height: clamp(280px, 35vh, 325px); }.messages-screen .sky-words { height: 88px; }.messages-screen .slingshot-floor { min-height: calc(100% - 88px); }
 @media (max-height: 760px) and (min-width: 721px) { .messages-screen .slingshot-playfield { height: 245px; }.messages-screen .sky-words { height: 68px; }.messages-screen .slingshot-floor { min-height: calc(100% - 68px); }.slingshot-tutorial li { padding-top: 5px; padding-bottom: 5px; }.slingshot-guide { min-height: 23px; padding-top: 5px; padding-bottom: 5px; } }
 @media (max-width: 720px) { .story-cue { margin-top: 8px; padding: 4px 0 4px 7px; font-size: 8px; }.story-cue b { display: block; margin: 0 0 2px; }.slingshot-tutorial li { gap: 4px; padding: 5px 4px; font-size: 7px; }.slingshot-tutorial b { font-size: 7px; }.slingshot-guide { min-height: 23px; padding: 5px 8px; font-size: 8px; }.messages-screen .slingshot-playfield { height: calc(100dvh - 480px); min-height: 230px; }.messages-screen .sky-words { height: 78px; }.messages-screen .slingshot-floor { min-height: calc(100% - 78px); }.word-cartridge.is-suggested::after { display: none; } }
+
+/* Keep the first instruction readable: the floating cartridges never overlap its label. */
+.messages-screen .slingshot-tutorial { position: relative; z-index: 8; }
+.messages-screen .sky-words .mini-label { position: relative; z-index: 5; display: inline-block; margin: 0; padding: 2px 7px 2px 0; color: #f0ebe1; background: #090a08; }
+.messages-screen .sky-word { z-index: 2; }.messages-screen .sky-word.word-0 { top: 43px; }.messages-screen .sky-word.word-1 { top: 52px; }.messages-screen .sky-word.word-2 { top: 39px; }
+@media (max-width: 720px) { .messages-screen .sky-word.word-0 { top: 36px; }.messages-screen .sky-word.word-1 { top: 40px; }.messages-screen .sky-word.word-2 { top: 32px; } }
